@@ -175,16 +175,12 @@ fn update_file(directory: &mut Vec<String>, selection: &mut usize) {
     }
 
     for index in y..x {
-        if index >= files.len() {
-            print!("\n");
-        } else {
-            let file: &LocalDirectory = &files[index];
-            println!("{}", (|| -> ColoredString {
-                let x = format!("{} {}", if file.is_folder { "+" } else { "-" }, file.name);
-                if index == *selection { return x.purple() }
-                x.white().bold()
-            })())
-        }
+        let file: &LocalDirectory = &files[index];
+        println!("{}", (|| -> ColoredString {
+            let x = format!("{} {}", if file.is_folder { "+" } else { "-" }, file.name);
+            if index == *selection { return x.purple() }
+            x.white()
+        })())
     }
 
     // mostrar atalhos
@@ -258,31 +254,25 @@ fn update_editor(selection: &mut usize, line_selected: &mut usize, col_selected:
         *is_first = false;
         x
     };
-    
-    let __file_lines_size: Vec<&str> = if file_content.contains('\n') { file_content.split('\n').collect() } else { vec![] };
-    let file_lines_size: usize = __file_lines_size.len();
-
     for (index, line_) in file_content.lines().enumerate() {
-        if file_lines_size <  ((height * 2) + *line_selected - 10) || index >= *line_selected && index < ((height * 2) + *line_selected - 10) {
-            let mut line: String = line_.to_string();
-            line.push(' ');
-            println!("{}", (|| -> String {
-                let x = if index == *line_selected {
-                    format!(" {} |", index+1).purple()
-                } else {
-                    format!(" {} |", index+1).white()
-                };
-                format!("{x} {}", (|| -> String {
-                    if index != *line_selected { return line.to_string(); }
-                    let mut y: String = String::new();
-                    for (i, c) in line.chars().enumerate() {
-                        if i == *col_selected { y = format!("{}{}", y, String::from(c).on_white().black()) }
-                        else { y.push(c); }
-                    }
-                    y
-                })())
+        let mut line: String = line_.to_string();
+        line.push(' ');
+        println!("{}", (|| -> String {
+            let x = if index == *line_selected {
+                format!("  |", index+1).purple()
+            } else {
+                format!(" {} |", index+1).white()
+            };
+            format!("{x} {}", (|| -> String {
+                if index != *line_selected { return line.to_string(); }
+                let mut y: String = String::new();
+                for (i, c) in line.chars().enumerate() {
+                    if i == *col_selected { y = format!("{}{}", y, String::from(c).on_white().black()) }
+                    else { y.push(c); }
+                }
+                y
             })())
-        }
+        })())
     }
 }
 
