@@ -1,4 +1,5 @@
 use core::time;
+use std::env::current_dir;
 use std::io;
 use std::fs;
 use std::env;
@@ -19,6 +20,16 @@ enum Interface {
     // LiveShare
 }
 
+enum EnterRules {
+    Code,
+    Listenner
+}
+
+enum Pendences {
+    NewFile,
+    Any
+}
+
 struct KeyEvents {
     code: KeyCode,
     modifiers: KeyModifiers
@@ -29,7 +40,7 @@ struct LocalDirectory {
     is_folder: bool,
     extension: Option<String>,
     name: String,
-    path: PathBuf, // Novo campo para o caminho completo do arquivo
+    path: PathBuf
 }
 
 fn read_local_directory() -> Vec<LocalDirectory> {
@@ -44,7 +55,7 @@ fn read_local_directory() -> Vec<LocalDirectory> {
     if let Ok(entries) = fs::read_dir(&current_dir) {
         let mut result = Vec::new();
 
-        for entry in entries {
+        for (index, entry) in entries.enumerate() {
             if let Ok(entry) = entry {
                 let file_type = entry.file_type();
                 let file_name = entry.file_name();
@@ -66,8 +77,16 @@ fn read_local_directory() -> Vec<LocalDirectory> {
                     name,
                     path,
                 });
+
             }
         }
+        
+        result.push(LocalDirectory {
+            is_folder: false,
+            extension: Some(String::new()),
+            name: String::from("listenner.lgvim"),
+            path: std::path::PathBuf::from(format!("{}{}listenner.lgvim", current_dir.display(), std::path::MAIN_SEPARATOR))
+        });
 
         result
     } else {
@@ -174,7 +193,7 @@ fn update_file(directory: &mut Vec<String>, selection: &mut usize) {
         x = (height * 2 - 2 - 11) + *selection;
     }
 
-    for index in y..x {
+    for index in y..(x-1) {
         if index >= files.len() {
             print!("\n");
         } else {
@@ -187,7 +206,6 @@ fn update_file(directory: &mut Vec<String>, selection: &mut usize) {
         }
     }
 
-    // mostrar atalhos
     println!("{}{}\n{}", (|| -> String {
         if files.len() > (height * 2 - 2) {
             return String::new();
@@ -201,7 +219,8 @@ fn update_file(directory: &mut Vec<String>, selection: &mut usize) {
             ["Down", "Down file"],
             ["Up", "Up file"],
             ["Enter", "Open"],
-            ["Ctrl + C", "Kill process"]
+            ["Ctrl + C", "Kill process"],
+            ["Ctrl + N", "New file"]
         ];
         let x = atl.len();
 
@@ -244,16 +263,19 @@ fn update_editor(selection: &mut usize, line_selected: &mut usize, col_selected:
 
     let files: Vec<LocalDirectory> = read_local_directory();
     
+    let file: &LocalDirectory = &files[if *selection == 0 { files.len() - 1 } else { *selection }];
+    // println!("{:#?}", file);
+
     println!("{}{}\n{}", (|| -> String {
-        " ".repeat(usize::from(width - (width % 2) / 2) - usize::from(files[*selection].name.len() / 2))
-    })(), files[*selection].name, (|| -> String {
+        " ".repeat(usize::from(width - (width % 2) / 2) - usize::from(file.name.len() / 2))
+    })(), file.name, (|| -> String {
         "-".repeat(usize::from(width) * 2)
     })());
 
     let file_content: String = if !*is_first {
         fs::read_to_string(".lgvim").expect("this file is not a valid")
     } else {
-        let x: String = fs::read_to_string(files[*selection].path.clone()).expect("this file is not a valid");
+        let x: String = fs::read_to_string(file.path.clone()).expect("this file is not a valid");
         fs::write(".lgvim", x.clone()).expect("Fail to write file");
         *is_first = false;
         x
@@ -319,209 +341,253 @@ pub fn run() {
     }
 
     let mut current_interface: Interface = Interface::Files;
+    let mut on_enter_rules: EnterRules = EnterRules::Code;
+    let mut pendence_action: Pendences = Pendences::Any;
     loop {
             match current_interface {
-            Interface::Files => {
-                clear();
-                update_file(&mut dir, &mut selection);
-                terminal::enable_raw_mode().expect("Failed to enable raw mode");
-                let event_listenner: KeyEvents = event_listenner();
+                Interface::Files => {
+                    clear();
+                    update_file(&mut dir, &mut selection);
+                    terminal::enable_raw_mode().expect("Failed to enable raw mode");
+                    let event_listenner: KeyEvents = event_listenner();
 
-                match event_listenner.modifiers {
-                    KeyModifiers::CONTROL => {
-                        if event_listenner.code == KeyCode::Char('c') {
-                            terminal::disable_raw_mode().expect("Failed to disable raw mode");
-                            clear();
-                            println!("Ctrl+C - Kill LGvim process.");
-                            fs::write(".lgvim", "NOTHING").expect("Fail to write file");
-                            fs::remove_file(".lgvim").expect("Fail to delete file");
-                            break;
-                        }
-                    }
-                    _ => {
-                        match event_listenner.code {
-                            KeyCode::Up => {
-                                if selection > 0 { selection -= 1; }
-                            } 
-                            KeyCode::Down => {
-                                if selection < (read_local_directory().len() - 1) {
-                                    selection += 1;
+                    match event_listenner.modifiers {
+                        KeyModifiers::CONTROL => {
+                            match event_listenner.code {
+                                KeyCode::Char('n') => {
+                                    line_selected = 0;
+                                    col_selected  = 0;
+                                    is_first = true;
+                                    current_interface = Interface::Editor;
+                                    selection = read_local_directory().len();
+                                    fs::write("listenner.lgvim", &String::new()).expect("Fail to create file");
+                                    pendence_action = Pendences::NewFile;
+                                    on_enter_rules = EnterRules::Listenner;
                                 }
+                                KeyCode::Char('c') => {
+                                    terminal::disable_raw_mode().expect("Failed to disable raw mode");
+                                    clear();
+                                    println!("Ctrl+C - Kill LGvim process.");
+                                    fs::write(".lgvim", "NOTHING").expect("Fail to write file");
+                                    fs::remove_file(".lgvim").expect("Fail to delete file");
+                                    break;
+                                }
+                                _ => {}
                             }
-                            KeyCode::Enter => {
-                                line_selected = 0;
-                                col_selected  = 0;
-                                is_first = true;
-                                current_interface = Interface::Editor;
-                            }
-                            _ => {}
                         }
-                    }
-                }
-                terminal::disable_raw_mode().expect("Failed to disable raw mode");
-            },
-            Interface::Editor => {
-                clear();
-                update_editor(&mut selection, &mut line_selected, &mut col_selected, &mut is_first);
-                terminal::enable_raw_mode().expect("Failed to enable raw mode");
-                let event_listenner: KeyEvents = event_listenner();
-
-                match event_listenner.modifiers {
-                    KeyModifiers::CONTROL => {
-                        match event_listenner.code {
-                            KeyCode::Char('s') => {
-                                let to_save: String = fs::read_to_string(".lgvim").expect("Fail to read file");
-                                fs::write(read_local_directory()[selection].path.clone(), to_save).expect("Fail to write file");
-                                is_first = true;
-                                clear();
-                                println!("Saving...");
-                                thread::sleep(time::Duration::new(1, 0));
-                            }
-                            KeyCode::Enter => {
-                                let mut file_content: String = fs::read_to_string(".lgvim").expect("this file is not a valid");
-                                file_content.push('\n');
-                                fs::write(".lgvim", file_content).expect("Fail to write file");
-                            }
-                            _ => {}
-                        }
-                    }
-                    _ => {
-                        match event_listenner.code {
-                            KeyCode::Esc => {
-                                current_interface = Interface::Files;
-                            }
-                            KeyCode::Down => {
-                                let file_content: String = fs::read_to_string(".lgvim").expect("this file is not a valid");
-                                let lines: Vec<&str> = file_content.lines().collect();
-                                if (lines.len() - 1) > line_selected {
-                                    line_selected += 1;
-
-                                    if lines[line_selected].len() < col_selected {
-                                        col_selected = lines[line_selected].len() - 1;
+                        _ => {
+                            match event_listenner.code {
+                                KeyCode::Up => {
+                                    if selection > 0 { selection -= 1; }
+                                } 
+                                KeyCode::Down => {
+                                    if selection < (read_local_directory().len() - 2) {
+                                        selection += 1;
                                     }
                                 }
+                                KeyCode::Enter => {
+                                    line_selected = 0;
+                                    col_selected  = 0;
+                                    is_first = true;
+                                    current_interface = Interface::Editor;
+                                }
+                                _ => {}
                             }
-                            KeyCode::Up => {
-                                if line_selected > 0 {
-                                    line_selected -= 1;
+                        }
+                    }
+                    terminal::disable_raw_mode().expect("Failed to disable raw mode");
+                },
+                Interface::Editor => {
+                    clear();
+                    update_editor(&mut selection, &mut line_selected, &mut col_selected, &mut is_first);
+                    terminal::enable_raw_mode().expect("Failed to enable raw mode");
+                    let event_listenner: KeyEvents = event_listenner();
 
+                    match event_listenner.modifiers {
+                        KeyModifiers::CONTROL => {
+                            match event_listenner.code {
+                                KeyCode::Char('s') => {
+                                    let to_save: String = fs::read_to_string(".lgvim").expect("Fail to read file");
+                                    fs::write(read_local_directory()[selection].path.clone(), to_save).expect("Fail to write file");
+                                    is_first = true;
+                                    clear();
+                                    println!("Saving...");
+                                    thread::sleep(time::Duration::new(1, 0));
+                                }
+                                KeyCode::Enter => {
+                                    let mut file_content: String = fs::read_to_string(".lgvim").expect("this file is not a valid");
+                                    file_content.push('\n');
+                                    fs::write(".lgvim", file_content).expect("Fail to write file");
+                                }
+                                _ => {}
+                            }
+                        }
+                        _ => {
+                            match event_listenner.code {
+                                KeyCode::Esc => {
+                                    current_interface = Interface::Files;
+                                }
+                                KeyCode::Down => {
                                     let file_content: String = fs::read_to_string(".lgvim").expect("this file is not a valid");
                                     let lines: Vec<&str> = file_content.lines().collect();
-                                    if lines[line_selected].len() < col_selected {
-                                        col_selected = lines[line_selected].len() - 1;
+                                    if (lines.len() - 1) > line_selected {
+                                        line_selected += 1;
+
+                                        if lines[line_selected].len() < col_selected {
+                                            col_selected = lines[line_selected].len() - 1;
+                                        }
                                     }
                                 }
-                            }
-                            KeyCode::Left => {
-                                if col_selected > 0 {
-                                    col_selected -= 1;
-                                }
-                            }
-                            KeyCode::Right => {
-                                let file_content: String = fs::read_to_string(".lgvim").expect("this file is not a valid");
-                                let lines: Vec<&str> = file_content.lines().collect();
-                                if lines[line_selected].len() > col_selected {
-                                    col_selected += 1;
-                                }
-                            }
-                            KeyCode::Enter => {
-                                let file_content: String = fs::read_to_string(".lgvim").expect("this file is not valid");
-                                let lines: Vec<&str> = file_content.lines().collect();
-                                let mut new_lines: Vec<String> = vec![];
-                            
-                                for (index, line) in lines.iter().enumerate() {
-                                    if index == line_selected {
-                                        let line_before_cursor: String = line.chars().take(col_selected).collect();
-                                        let line_after_cursor: String = line.chars().skip(col_selected).collect();
-                            
-                                        new_lines.push(line_before_cursor);
-                            
-                                        if col_selected == line.len() {
-                                            new_lines.push("\r".to_string()); 
-                                            col_selected = 0;
-                                            line_selected += 1;
+                                KeyCode::Up => {
+                                    if line_selected > 0 {
+                                        line_selected -= 1;
+
+                                        let file_content: String = fs::read_to_string(".lgvim").expect("this file is not a valid");
+                                        let lines: Vec<&str> = file_content.lines().collect();
+                                        if lines[line_selected].len() < col_selected {
+                                            col_selected = lines[line_selected].len() - 1;
                                         }
-                            
-                                        new_lines.push(line_after_cursor);
-                                    } else {
-                                        new_lines.push(line.to_string());
                                     }
                                 }
-
-                                line_selected += 1;
-                                col_selected = 0;
-                            
-                                fs::write(".lgvim", new_lines.join("\n")).expect("Fail to write file");
-                            }
-                            KeyCode::Backspace => {
-                                let file_content: String = fs::read_to_string(".lgvim").expect("Fail to read file");
-                                let lines: Vec<&str> = file_content.lines().collect();
-                                let mut new_lines: Vec<String> = vec![];
-                            
-                                for (index, line) in lines.iter().enumerate() {
-                                    if index == line_selected {
-                                        if col_selected == 0 && line_selected > 0 {
-                                            let ind: usize = new_lines.len() - 1;
-                                            col_selected = new_lines[ind].len() + 1;
-                                            line_selected -= 1;
-                                            new_lines[ind] = format!("{}{}", new_lines[ind], line);
-                                        } else if col_selected > 0 {
-                                            let mut ch: Vec<char> = line.chars().collect();
-                                            ch.remove(col_selected - 1);
-                                            col_selected -= 1;
-                                            let mut content: String = String::new();
-                                            for c in ch {
-                                                content.push(c);
-                                            }
-                                            new_lines.push(content)
-                                        } else if col_selected == 0 && line_selected == 0 {
-                                            new_lines.push(line.to_string())
-                                        }
-                                    } else { new_lines.push(line.to_string()) }
+                                KeyCode::Left => {
+                                    if col_selected > 0 {
+                                        col_selected -= 1;
+                                    }
                                 }
-                            
-                                fs::write(".lgvim", new_lines.join("\n")).expect("Fail to write file");
-                            }                                                                            
-                            KeyCode::Char(c) => {
-                                let x: String =  fs::read_to_string(".lgvim").expect("Fail to read file");
-                                let lines: Vec<&str> = x.lines().collect();
-                                let mut new_lines: Vec<String> = vec![];
+                                KeyCode::Right => {
+                                    let file_content: String = fs::read_to_string(".lgvim").expect("this file is not a valid");
+                                    let lines: Vec<&str> = file_content.lines().collect();
+                                    if lines[line_selected].len() > col_selected {
+                                        col_selected += 1;
+                                    }
+                                }
+                                KeyCode::Enter => {
 
-                                if x.is_empty() {
-                                    fs::write(".lgvim", String::from(c)).expect("Fail to write file");
-                                } else {
+                                    match on_enter_rules {
+                                        EnterRules::Code => {
 
-                                    for (index, line) in lines.iter().enumerate() {
-                                        let mut line_: String = String::new();
-                                        if index == line_selected {
-                                            if col_selected >= (line.len() - 1) {
-                                                line_.push_str(line);
-                                                line_.push(c);
-                                            } else {
-                                                for i in 0..line.len() {
-                                                    if i == col_selected {
-                                                        line_.push(c);
+                                            let file_content: String = fs::read_to_string(".lgvim").expect("this file is not valid");
+                                            let lines: Vec<&str> = file_content.lines().collect();
+                                            let mut new_lines: Vec<String> = vec![];
+                                        
+                                            for (index, line) in lines.iter().enumerate() {
+                                                if index == line_selected {
+                                                    let line_before_cursor: String = line.chars().take(col_selected).collect();
+                                                    let line_after_cursor: String = line.chars().skip(col_selected).collect();
+                                        
+                                                    new_lines.push(line_before_cursor);
+                                        
+                                                    if col_selected == line.len() {
+                                                        new_lines.push("\r".to_string()); 
+                                                        col_selected = 0;
+                                                        line_selected += 1;
                                                     }
-                                                    let y: Vec<char> = line.chars().collect();
-                                                    line_.push(y[i])
+                                        
+                                                    new_lines.push(line_after_cursor);
+                                                } else {
+                                                    new_lines.push(line.to_string());
                                                 }
                                             }
-                                        } else { line_.push_str(line) }
-                                        new_lines.push(line_);
+
+                                            line_selected += 1;
+                                            col_selected = 0;
+                                        
+                                            fs::write(".lgvim", new_lines.join("\n")).expect("Fail to write file");
+
+                                        }
+
+                                        EnterRules::Listenner => {
+                                            let file_content: String = fs::read_to_string(".lgvim").expect("Fail to read file");
+                                            match pendence_action {
+                                                Pendences::Any => {},
+                                                Pendences::NewFile => {
+                                                    let current_dir = match std::env::current_dir() {
+                                                        Ok(dir) => dir,
+                                                        Err(_) => {
+                                                            eprintln!("Erro ao obter o diretório atual.");
+                                                            std::process::exit(1);
+                                                        }
+                                                    };
+                                                    let directory: String = format!("{}{}{}", current_dir.display(), std::path::MAIN_SEPARATOR, file_content);
+                                                    fs::write(PathBuf::from(directory), &String::new()).expect("Fail to create file");
+                                                    fs::remove_file("listenner.lgvim").expect("Fail to delete file");
+                                                    on_enter_rules = EnterRules::Listenner;
+                                                    current_interface = Interface::Files;
+                                                    selection = 0;
+                                                }
+                                            }
+                                        }
                                     }
-
-                                    fs::write(".lgvim", new_lines.join("\n")).expect("Fail to write file");
-
                                 }
-                                col_selected += 1;
+                                KeyCode::Backspace => {
+                                    let file_content: String = fs::read_to_string(".lgvim").expect("Fail to read file");
+                                    let lines: Vec<&str> = file_content.lines().collect();
+                                    let mut new_lines: Vec<String> = vec![];
+                                
+                                    for (index, line) in lines.iter().enumerate() {
+                                        if index == line_selected {
+                                            if col_selected == 0 && line_selected > 0 {
+                                                let ind: usize = new_lines.len() - 1;
+                                                col_selected = new_lines[ind].len() + 1;
+                                                line_selected -= 1;
+                                                new_lines[ind] = format!("{}{}", new_lines[ind], line);
+                                            } else if col_selected > 0 {
+                                                let mut ch: Vec<char> = line.chars().collect();
+                                                ch.remove(col_selected - 1);
+                                                col_selected -= 1;
+                                                let mut content: String = String::new();
+                                                for c in ch {
+                                                    content.push(c);
+                                                }
+                                                new_lines.push(content)
+                                            } else if col_selected == 0 && line_selected == 0 {
+                                                new_lines.push(line.to_string())
+                                            }
+                                        } else { new_lines.push(line.to_string()) }
+                                    }
+                                
+                                    fs::write(".lgvim", new_lines.join("\n")).expect("Fail to write file");
+                                }                                                                            
+                                KeyCode::Char(c) => {
+                                    let x: String =  fs::read_to_string(".lgvim").expect("Fail to read file");
+                                    let lines: Vec<&str> = x.lines().collect();
+                                    let mut new_lines: Vec<String> = vec![];
+
+                                    if x.is_empty() {
+                                        fs::write(".lgvim", String::from(c)).expect("Fail to write file");
+                                    } else {
+
+                                        for (index, line) in lines.iter().enumerate() {
+                                            let mut line_: String = String::new();
+                                            if index == line_selected {
+                                                if col_selected >= (line.len() - 1) {
+                                                    line_.push_str(line);
+                                                    line_.push(c);
+                                                } else {
+                                                    for i in 0..line.len() {
+                                                        if i == col_selected {
+                                                            line_.push(c);
+                                                        }
+                                                        let y: Vec<char> = line.chars().collect();
+                                                        line_.push(y[i])
+                                                    }
+                                                }
+                                            } else { line_.push_str(line) }
+                                            new_lines.push(line_);
+                                        }
+
+                                        fs::write(".lgvim", new_lines.join("\n")).expect("Fail to write file");
+
+                                    }
+                                    col_selected += 1;
+                                }
+                                _ => {}
                             }
-                            _ => {}
                         }
                     }
+                    terminal::disable_raw_mode().expect("Failed to disable raw mode");
                 }
-                terminal::disable_raw_mode().expect("Failed to disable raw mode");
-            },
-            // Iterface::LiveShare => {}
+                // Iterface::LiveShare => {}
         }
     }
 
