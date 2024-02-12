@@ -472,17 +472,13 @@ pub fn run() {
                                         
                                             for (index, line) in lines.iter().enumerate() {
                                                 if index == line_selected {
-                                                    let line_before_cursor: String = line.chars().take(col_selected).collect();
-                                                    let line_after_cursor: String = line.chars().skip(col_selected).collect();
+                                                    let mut line_after_cursor: String = String::new();
                                         
-                                                    new_lines.push(line_before_cursor);
-                                        
-                                                    if col_selected == line.len() {
-                                                        new_lines.push("\r".to_string()); 
-                                                        col_selected = 0;
-                                                        line_selected += 1;
+                                                    for (ind, chr) in line.chars().enumerate() {
+                                                        line_after_cursor.push(chr);
+                                                        if ind == (col_selected - 1) { line_after_cursor.push('\n'); line_after_cursor.push('\0'); }
                                                     }
-                                        
+
                                                     new_lines.push(line_after_cursor);
                                                 } else {
                                                     new_lines.push(line.to_string());
@@ -490,7 +486,7 @@ pub fn run() {
                                             }
 
                                             line_selected += 1;
-                                            col_selected = 0;
+                                            col_selected = 1;
                                         
                                             fs::write(".lgvim", new_lines.join("\n")).expect("Fail to write file");
 
@@ -511,7 +507,7 @@ pub fn run() {
                                                     let directory: String = format!("{}{}{}", current_dir.display(), std::path::MAIN_SEPARATOR, file_content);
                                                     fs::write(PathBuf::from(directory), &String::new()).expect("Fail to create file");
                                                     fs::remove_file("listenner.lgvim").expect("Fail to delete file");
-                                                    on_enter_rules = EnterRules::Listenner;
+                                                    on_enter_rules = EnterRules::Code;
                                                     current_interface = Interface::Files;
                                                     selection = 0;
                                                 }
