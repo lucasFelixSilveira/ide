@@ -220,6 +220,7 @@ fn update_file(directory: &mut Vec<String>, selection: &mut usize) {
             ["Up", "Up file"],
             ["Enter", "Open"],
             ["Ctrl + C", "Kill process"],
+            ["Ctrl + R", "Delete file"],
             ["Ctrl + N", "New file"]
         ];
         let x = atl.len();
@@ -372,6 +373,14 @@ pub fn run() {
                                     fs::remove_file(".lgvim").expect("Fail to delete file");
                                     break;
                                 }
+                                KeyCode::Char('r') => {
+                                    let selectionned: &LocalDirectory = &read_local_directory()[selection];
+                                    if selectionned.is_folder {
+                                        fs::remove_dir_all(selectionned.path.clone()).expect("Fail to remove folder");
+                                    } else {
+                                        fs::remove_file(selectionned.path.clone()).expect("Fail to remove file");
+                                    }
+                                }
                                 _ => {}
                             }
                         }
@@ -412,7 +421,6 @@ pub fn run() {
                                     is_first = true;
                                     clear();
                                     println!("Saving...");
-                                    thread::sleep(time::Duration::new(1, 0));
                                 }
                                 KeyCode::Enter => {
                                     let mut file_content: String = fs::read_to_string(".lgvim").expect("this file is not a valid");
@@ -486,7 +494,7 @@ pub fn run() {
                                             }
 
                                             line_selected += 1;
-                                            col_selected = 1;
+                                            col_selected = 0;
                                         
                                             fs::write(".lgvim", new_lines.join("\n")).expect("Fail to write file");
 
@@ -545,15 +553,27 @@ pub fn run() {
                                     fs::write(".lgvim", new_lines.join("\n")).expect("Fail to write file");
                                 }                                                                            
                                 KeyCode::Char(c) => {
+                                   
                                     let x: String =  fs::read_to_string(".lgvim").expect("Fail to read file");
-                                    let lines: Vec<&str> = x.lines().collect();
+                                    let mut lines: Vec<&str> = x.lines().collect();
                                     let mut new_lines: Vec<String> = vec![];
+                                    if line_selected != 0 {
+                                        if lines[line_selected].bytes().nth(0).unwrap() == b'\0' {
+                                            lines[line_selected] = &lines[line_selected][1..lines[line_selected].len()];
+                                            col_selected+=1;
+                                        }
+                                    }
 
                                     if x.is_empty() {
                                         fs::write(".lgvim", String::from(c)).expect("Fail to write file");
                                     } else {
 
-                                        for (index, line) in lines.iter().enumerate() {
+                                        for (index, line_) in lines.iter().enumerate() {
+
+                                            let mut __line: String = String::from(*line_);
+                                            if line_.len() == 0 { __line.push('\0'); }
+                                            let line: &str = __line.as_str();
+
                                             let mut line_: String = String::new();
                                             if index == line_selected {
                                                 if col_selected >= (line.len() - 1) {
@@ -565,7 +585,7 @@ pub fn run() {
                                                             line_.push(c);
                                                         }
                                                         let y: Vec<char> = line.chars().collect();
-                                                        line_.push(y[i])
+                                                        if y[i] != '\0' { line_.push(y[i]) }
                                                     }
                                                 }
                                             } else { line_.push_str(line) }
