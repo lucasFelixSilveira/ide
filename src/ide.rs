@@ -418,6 +418,7 @@ pub fn run() {
                                 KeyCode::Char('s') => {
                                     let to_save: String = fs::read_to_string(".lgvim").expect("Fail to read file");
                                     fs::write(read_local_directory()[selection].path.clone(), to_save).expect("Fail to write file");
+                                    thread::sleep(time::Duration::new(1, 0));
                                     is_first = true;
                                     clear();
                                     println!("Saving...");
