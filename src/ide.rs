@@ -1,11 +1,9 @@
 use core::time;
-use std::env::current_dir;
 use std::io;
 use std::fs;
 use std::env;
 use std::process::Command;
 use std::path::{Path, PathBuf};
-use std::str::LinesAny;
 use std::thread;
 use std::vec;
 use crossterm::{
@@ -265,7 +263,6 @@ fn update_editor(selection: &mut usize, line_selected: &mut usize, col_selected:
     let files: Vec<LocalDirectory> = read_local_directory();
     
     let file: &LocalDirectory = &files[if *selection == 0 { files.len() - 1 } else { *selection }];
-    // println!("{:#?}", file);
 
     println!("{}{}\n{}", (|| -> String {
         " ".repeat(usize::from(width - (width % 2) / 2) - usize::from(file.name.len() / 2))
@@ -418,10 +415,10 @@ pub fn run() {
                                 KeyCode::Char('s') => {
                                     let to_save: String = fs::read_to_string(".lgvim").expect("Fail to read file");
                                     fs::write(read_local_directory()[selection].path.clone(), to_save).expect("Fail to write file");
-                                    thread::sleep(time::Duration::new(1, 0));
                                     is_first = true;
                                     clear();
                                     println!("Saving...");
+                                    thread::sleep(time::Duration::new(1, 0));
                                 }
                                 KeyCode::Enter => {
                                     let mut file_content: String = fs::read_to_string(".lgvim").expect("this file is not a valid");
