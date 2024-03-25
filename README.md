@@ -46,8 +46,8 @@ cargo build --release # Compile the repository
 ### This is one of my first public projects done in Rust. There will certainly be future changes.
 
 ### Thank you for your attention! I hope that you enjoyed. 
-<center>
+<div align="center">
 
 # 💜
-</center>
+</div>
 
