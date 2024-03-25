@@ -31,7 +31,23 @@ cargo build --release # Compile the repository
 # You must copy this executable and place it in a folder defined in your environment variables. (In the `path` field)
 ```
 
+# Keybinds
+### In file explorer:
+- `^R` Delete file 🗑️
+- `^C` Kill process 🚫
+- `^N` Create new file ✏️
+- `Backspace` Back one directory ↩️
+- `Enter` Acess file or folder 🚪
+
+### In editor
+- `Escape` Exit file ❌
+- `^S` Save file 📂
+
 ### This is one of my first public projects done in Rust. There will certainly be future changes.
 
 ### Thank you for your attention! I hope that you enjoyed. 
+<center>
+
 # 💜
+</center>
+
