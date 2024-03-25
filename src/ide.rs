@@ -1,10 +1,7 @@
-use core::time;
-use std::io;
 use std::fs;
 use std::env;
 use std::process::Command;
-use std::path::{Path, PathBuf};
-use std::thread;
+use std::path::PathBuf;
 use std::vec;
 use crossterm::{
     event::{self, KeyCode, KeyEvent, KeyModifiers},
@@ -349,7 +346,6 @@ pub fn run() {
 
                     match event_listenner.modifiers {
                         KeyModifiers::CONTROL => {
-
                             match event_listenner.code {
                                 KeyCode::Char('n') => {
                                     line_selected = 0;
@@ -361,7 +357,6 @@ pub fn run() {
                                     pendence_action = Pendences::NewFile;
                                     on_enter_rules = EnterRules::Listenner;
                                 }
-
                                 KeyCode::Char('c') => {
                                     terminal::disable_raw_mode().expect("Failed to disable raw mode");
                                     clear();
@@ -370,7 +365,6 @@ pub fn run() {
                                     fs::remove_file(".lgvim").expect("Fail to delete file");
                                     break;
                                 }
-
                                 KeyCode::Char('r') => {
                                     let selectionned: &LocalDirectory = &read_local_directory()[selection];
                                     if selectionned.is_folder {
@@ -381,20 +375,44 @@ pub fn run() {
                                 }
                                 _ => {}
                             }
-
                         }
                         _ => {
                             match event_listenner.code {
+                                KeyCode::Backspace => {
+                                    let _path: String = std::env::current_dir().unwrap().to_str().unwrap().to_string();
+                                    let (path, _) = _path.rsplit_once(std::path::MAIN_SEPARATOR).unwrap();
+                                    match std::env::set_current_dir(path) {
+                                        Err(_) => {
+                                            clear();
+                                            println!("ALERT: Impossible to return the directory.");
+                                            std::thread::sleep(std::time::Duration::new(1, 0));
+                                        }
+                                        _ => {
+                                            if std::env::current_dir().unwrap().to_str().unwrap().to_string() == _path {
+                                                clear();
+                                                println!("ALERT: Impossible to return the directory.");
+                                                std::thread::sleep(std::time::Duration::new(1, 0));
+                                            }
+                                        }
+                                    }
+                                    selection = 0;
+                                    dir = vec![];
+                                    if let Ok(current_dir) = env::current_dir() {
+                                        if let Some(dir_name) = current_dir.file_name() {
+                                            if let Some(dir_name_str) = dir_name.to_str() {
+                                                dir.push(dir_name_str.to_string());
+                                            }
+                                        }
+                                    }
+                                }
                                 KeyCode::Up => {
                                     if selection > 0 { selection -= 1; }
                                 } 
-
                                 KeyCode::Down => {
                                     if selection < (read_local_directory().len() - 2) {
                                         selection += 1;
                                     }
                                 }
-
                                 KeyCode::Enter => {
                                     match read_local_directory()[selection].is_folder {
                                         false => {
@@ -432,7 +450,6 @@ pub fn run() {
 
                     match event_listenner.modifiers {
                         KeyModifiers::CONTROL => {
-
                             match event_listenner.code {
                                 KeyCode::Char('s') => {
                                     let to_save: String = fs::read_to_string(".lgvim").expect("Fail to read file");
@@ -440,9 +457,8 @@ pub fn run() {
                                     is_first = true;
                                     clear();
                                     println!("Saving...");
-                                    thread::sleep(time::Duration::new(1, 0));
+                                    std::thread::sleep(std::time::Duration::new(1, 0));
                                 }
-
                                 KeyCode::Enter => {
                                     let mut file_content: String = fs::read_to_string(".lgvim").expect("this file is not a valid");
                                     file_content.push('\n');
@@ -450,14 +466,12 @@ pub fn run() {
                                 }
                                 _ => {}
                             }
-
                         }
                         _ => {
                             match event_listenner.code {
                                 KeyCode::Esc => {
                                     current_interface = Interface::Files;
                                 }
-
                                 KeyCode::Down => {
                                     let file_content: String = fs::read_to_string(".lgvim").expect("this file is not a valid");
                                     let lines: Vec<&str> = file_content.lines().collect();
@@ -469,7 +483,6 @@ pub fn run() {
                                         }
                                     }
                                 }
-
                                 KeyCode::Up => {
                                     if line_selected > 0 {
                                         line_selected -= 1;
@@ -481,13 +494,11 @@ pub fn run() {
                                         }
                                     }
                                 }
-
                                 KeyCode::Left => {
                                     if col_selected > 0 {
                                         col_selected -= 1;
                                     }
                                 }
-
                                 KeyCode::Right => {
                                     let file_content: String = fs::read_to_string(".lgvim").expect("this file is not a valid");
                                     let lines: Vec<&str> = file_content.lines().collect();
@@ -495,7 +506,6 @@ pub fn run() {
                                         col_selected += 1;
                                     }
                                 }
-
                                 KeyCode::Enter => {
 
                                     match on_enter_rules {
@@ -549,9 +559,7 @@ pub fn run() {
                                             }
                                         }
                                     }
-
                                 }
-
                                 KeyCode::Backspace => {
                                     let file_content: String = fs::read_to_string(".lgvim").expect("Fail to read file");
                                     let lines: Vec<&str> = file_content.lines().collect();
@@ -580,8 +588,7 @@ pub fn run() {
                                     }
                                 
                                     fs::write(".lgvim", new_lines.join("\n")).expect("Fail to write file");
-                                }  
-
+                                }                                                                            
                                 KeyCode::Char(c) => {
                                    
                                     let x: String =  fs::read_to_string(".lgvim").expect("Fail to read file");
@@ -590,6 +597,7 @@ pub fn run() {
                                     if line_selected != 0 {
                                         if lines[line_selected].bytes().nth(0).unwrap() == b'\0' {
                                             lines[line_selected] = &lines[line_selected][1..lines[line_selected].len()];
+                                            col_selected+=1;
                                         }
                                     }
 
@@ -600,7 +608,7 @@ pub fn run() {
                                         for (index, line_) in lines.iter().enumerate() {
 
                                             let mut __line: String = String::from(*line_);
-                                            __line.push(' ');
+                                            if line_.len() == 0 { __line.push('\0'); }
                                             let line: &str = __line.as_str();
 
                                             let mut line_: String = String::new();
@@ -614,7 +622,7 @@ pub fn run() {
                                                             line_.push(c);
                                                         }
                                                         let y: Vec<char> = line.chars().collect();
-                                                        line_.push(y[i])
+                                                        if y[i] != '\0' { line_.push(y[i]) }
                                                     }
                                                 }
                                             } else { line_.push_str(line) }
