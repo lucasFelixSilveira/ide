@@ -1,10 +1,7 @@
-use core::time;
-use std::io;
 use std::fs;
 use std::env;
 use std::process::Command;
-use std::path::{Path, PathBuf};
-use std::thread;
+use std::path::PathBuf;
 use std::vec;
 use crossterm::{
     event::{self, KeyCode, KeyEvent, KeyModifiers},
@@ -15,7 +12,6 @@ use colored::*;
 enum Interface {
     Files,
     Editor,
-    // LiveShare
 }
 
 enum EnterRules {
@@ -36,13 +32,13 @@ struct KeyEvents {
 #[derive(Debug)]
 struct LocalDirectory {
     is_folder: bool,
-    extension: Option<String>,
+    _extension: Option<String>,
     name: String,
     path: PathBuf
 }
 
 fn read_local_directory() -> Vec<LocalDirectory> {
-    let current_dir = match std::env::current_dir() {
+    let current_dir: PathBuf = match std::env::current_dir() {
         Ok(dir) => dir,
         Err(_) => {
             eprintln!("Erro ao obter o diretório atual.");
@@ -53,14 +49,14 @@ fn read_local_directory() -> Vec<LocalDirectory> {
     if let Ok(entries) = fs::read_dir(&current_dir) {
         let mut result = Vec::new();
 
-        for (index, entry) in entries.enumerate() {
+        for (_, entry) in entries.enumerate() {
             if let Ok(entry) = entry {
                 let file_type = entry.file_type();
                 let file_name = entry.file_name();
                 let path = entry.path();
 
                 let is_folder = file_type.map_or(false, |t| t.is_dir());
-                let extension = file_name
+                let _extension = file_name
                     .to_string_lossy()
                     .to_string()
                     .rsplit('.')
@@ -71,7 +67,7 @@ fn read_local_directory() -> Vec<LocalDirectory> {
 
                 result.push(LocalDirectory {
                     is_folder,
-                    extension,
+                    _extension,
                     name,
                     path,
                 });
@@ -81,7 +77,7 @@ fn read_local_directory() -> Vec<LocalDirectory> {
         
         result.push(LocalDirectory {
             is_folder: false,
-            extension: Some(String::new()),
+            _extension: Some(String::new()),
             name: String::from("listenner.lgvim"),
             path: std::path::PathBuf::from(format!("{}{}listenner.lgvim", current_dir.display(), std::path::MAIN_SEPARATOR))
         });
@@ -95,15 +91,13 @@ fn read_local_directory() -> Vec<LocalDirectory> {
 
 fn event_listenner() -> KeyEvents {
     let result: KeyEvents;
-    let stdin = io::stdin();
-    let mut handle = stdin.lock();
     loop {
         if let Ok(event) = event::read() {
             match event {
                 event::Event::Key(KeyEvent {
                     code,
                     modifiers,
-                    kind,
+                    kind: _,
                     state: _,
                 }) => {
                     result = KeyEvents { code, modifiers };
@@ -263,6 +257,7 @@ fn update_editor(selection: &mut usize, line_selected: &mut usize, col_selected:
     let files: Vec<LocalDirectory> = read_local_directory();
     
     let file: &LocalDirectory = &files[if *selection == 0 { files.len() - 1 } else { *selection }];
+    // println!("{:#?}", file);
 
     println!("{}{}\n{}", (|| -> String {
         " ".repeat(usize::from(width - (width % 2) / 2) - usize::from(file.name.len() / 2))
@@ -383,6 +378,33 @@ pub fn run() {
                         }
                         _ => {
                             match event_listenner.code {
+                                KeyCode::Backspace => {
+                                    let _path: String = std::env::current_dir().unwrap().to_str().unwrap().to_string();
+                                    let (path, _) = _path.rsplit_once(std::path::MAIN_SEPARATOR).unwrap();
+                                    match std::env::set_current_dir(path) {
+                                        Err(_) => {
+                                            clear();
+                                            println!("ALERT: Impossible to return the directory.");
+                                            std::thread::sleep(std::time::Duration::new(1, 0));
+                                        }
+                                        _ => {
+                                            if std::env::current_dir().unwrap().to_str().unwrap().to_string() == _path {
+                                                clear();
+                                                println!("ALERT: Impossible to return the directory.");
+                                                std::thread::sleep(std::time::Duration::new(1, 0));
+                                            }
+                                        }
+                                    }
+                                    selection = 0;
+                                    dir = vec![];
+                                    if let Ok(current_dir) = env::current_dir() {
+                                        if let Some(dir_name) = current_dir.file_name() {
+                                            if let Some(dir_name_str) = dir_name.to_str() {
+                                                dir.push(dir_name_str.to_string());
+                                            }
+                                        }
+                                    }
+                                }
                                 KeyCode::Up => {
                                     if selection > 0 { selection -= 1; }
                                 } 
@@ -392,10 +414,27 @@ pub fn run() {
                                     }
                                 }
                                 KeyCode::Enter => {
-                                    line_selected = 0;
-                                    col_selected  = 0;
-                                    is_first = true;
-                                    current_interface = Interface::Editor;
+                                    match read_local_directory()[selection].is_folder {
+                                        false => {
+                                            line_selected = 0;
+                                            col_selected  = 0;
+                                            is_first = true;
+                                            current_interface = Interface::Editor;
+                                        },
+                                        true => {
+                                            let final_path: String = format!("{}{}{}", std::env::current_dir().unwrap().to_str().unwrap().to_string(), std::path::MAIN_SEPARATOR, read_local_directory()[selection].name);
+                                            std::env::set_current_dir(final_path).expect("Fail to enter in this directory");
+                                            selection = 0;
+                                            dir = vec![];
+                                            if let Ok(current_dir) = env::current_dir() {
+                                                if let Some(dir_name) = current_dir.file_name() {
+                                                    if let Some(dir_name_str) = dir_name.to_str() {
+                                                        dir.push(dir_name_str.to_string());
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                                 _ => {}
                             }
@@ -418,7 +457,7 @@ pub fn run() {
                                     is_first = true;
                                     clear();
                                     println!("Saving...");
-                                    thread::sleep(time::Duration::new(1, 0));
+                                    std::thread::sleep(std::time::Duration::new(1, 0));
                                 }
                                 KeyCode::Enter => {
                                     let mut file_content: String = fs::read_to_string(".lgvim").expect("this file is not a valid");
@@ -601,7 +640,6 @@ pub fn run() {
                     }
                     terminal::disable_raw_mode().expect("Failed to disable raw mode");
                 }
-                // Iterface::LiveShare => {}
         }
     }
 
