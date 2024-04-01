@@ -520,11 +520,14 @@ pub fn run() {
                                                     let mut line_after_cursor: String = String::new();
                                         
                                                     for (ind, chr) in line.chars().enumerate() {
-                                                        line_after_cursor.push(chr);
-                                                        if ind == (col_selected - 1) { line_after_cursor.push('\n'); line_after_cursor.push('\0'); }
+                                                        if col_selected > 0 { 
+                                                            line_after_cursor.push(chr);
+                                                            if ind == (col_selected - 1) { line_after_cursor.push('\n'); line_after_cursor.push('\0'); }
+                                                        }
                                                     }
 
-                                                    new_lines.push(line_after_cursor);
+                                                    if col_selected > 0 { new_lines.push(line_after_cursor); }
+                                                    else { new_lines.push(String::new()); new_lines.push(line.to_string()) }
                                                 } else {
                                                     new_lines.push(line.to_string());
                                                 }
