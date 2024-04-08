@@ -43,6 +43,10 @@ cargo build --release # Compile the repository
 - `I` To insert mode 📝
 - `M-X` To open command input 🟢
 - `^G` To close command input 🔴
+ 
+
+# Commands
+- `Hi` say Hello world!
 
 ### This is one of my first public projects done in Rust. There will certainly be future changes.
 
