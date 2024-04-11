@@ -46,7 +46,7 @@ cargo build --release # Compile the repository
  
 
 # Commands
-- `Hi` say Hello world!
+- `Hi` say Hello world! _(**Exemple command**)_
 
 ### This is one of my first public projects done in Rust. There will certainly be future changes.
 
