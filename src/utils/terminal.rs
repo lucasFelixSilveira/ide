@@ -6,17 +6,6 @@ pub fn dimensions() -> (u16, u16) {
 }
 
 pub fn clear() {
-    let is_windows = cfg!(target_os = "windows");
-
-    if is_windows {
-        Command::new("cmd")
-            .args(&["/C", "cls"])
-            .status()
-            .expect("_");
-    } else {
-        Command::new("sh")
-            .args(&["-c", "clear"])
-            .status()
-            .expect("_");
-    }
+    print!("\033[2J\033[1;1H");
+    std::io::stdout().flush().expect("failed to flush stdout");
 }
