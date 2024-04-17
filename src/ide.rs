@@ -2,34 +2,25 @@ use crossterm::terminal;
 use std::env;
 use std::fs;
 use std::path::PathBuf;
-use crate::structs;
-use crate::utils;
-use crate::assemblers;
+use crate::structs::{self, Editor, Interface, File, KeyEvents};
+use crate::utils::{terminal::clear, self};
 use crate::keyboard;
 use crate::keybinds;
-use utils::terminal::clear;
-use assemblers::files;
-use assemblers::file_editor;
-use structs::Editor;
-use structs::Interface;
-use structs::File;
-use structs::KeyEvents;
+use assemblers::{files, file_editor, self};
 
 pub fn run() {
-    let mut local: PathBuf = env::current_dir().unwrap();
     let mut editor: Editor = Editor::default();
     terminal::enable_raw_mode().expect("Failed to enable raw mode");
 
-    loop {
-        if editor.stopped { break; }
-        assemble_ui(&mut local, &mut editor);
-        local = env::current_dir().unwrap();
+    while editor.stopped {
+        let local = env::current_dir().unwrap();
+        assemble_ui(&local, &mut editor);
     }
 
     terminal::disable_raw_mode().expect("Failed to disable raw mode");
 }
 
-fn assemble_ui(local: &mut PathBuf, editor: &mut Editor) {
+fn assemble_ui(local: &PathBuf, editor: &mut Editor) {
     clear();
     match editor.interface {
         Interface::Files => {
