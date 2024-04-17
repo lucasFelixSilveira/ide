@@ -12,7 +12,7 @@ pub fn run() {
     let mut editor: Editor = Editor::default();
     terminal::enable_raw_mode().expect("Failed to enable raw mode");
 
-    while editor.stopped {
+    while !editor.stopped {
         let local = env::current_dir().unwrap();
         assemble_ui(&local, &mut editor);
     }
