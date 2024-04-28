@@ -67,20 +67,20 @@ pub fn assemble(content: String, editor: &mut Editor) {
             splitter2.clone(),
             "M-X".to_string().purple(),
             (|| -> String {
-                if editor.command.is_empty() {
+                if editor.input_command.is_empty() {
                     return format!("{}", " ".to_string().on_white());
                 }
-                if editor.command.len() == 1 && editor.cursor.z == 0 {
-                    return format!("{}", editor.command.clone().on_white().black());
+                if editor.input_command.len() == 1 && editor.cursor.z == 0 {
+                    return format!("{}", editor.input_command.clone().on_white().black());
                 }
-                if editor.cursor.z == editor.command.len() {
-                    return format!("{}{}", editor.command, " ".to_string().on_white().black());
+                if editor.cursor.z == editor.input_command.len() {
+                    return format!("{}{}", editor.input_command, " ".to_string().on_white().black());
                 }
                 format!(
                     "{}{}{}",
-                    editor.command[0..editor.cursor.z].to_string(),
-                    editor.command[editor.cursor.z..=editor.cursor.z].to_string().on_white().black(),
-                    editor.command[(editor.cursor.z + 1)..].to_string()
+                    editor.input_command[0..editor.cursor.z].to_string(),
+                    editor.input_command[editor.cursor.z..=editor.cursor.z].to_string().on_white().black(),
+                    editor.input_command[(editor.cursor.z + 1)..].to_string()
                 )
             })(),
             splitter2,

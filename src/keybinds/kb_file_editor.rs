@@ -1,5 +1,6 @@
 use crossterm::event::KeyCode;
 use crossterm::event::KeyModifiers;
+use crossterm::style::Stylize;
 use crate::structs;
 use crate::utils;
 use crate::structs::Interface;
@@ -28,7 +29,7 @@ pub fn binds(event: KeyEvents, editor: &mut Editor) {
                     editor.before_mode = editor.mode.clone();
                     editor.mode = Mode::Command;
                     editor.cursor.z = 0;
-                    editor.command = String::new();
+                    editor.input_command = String::new();
                 }
                 _ => {}
             }
@@ -38,7 +39,7 @@ pub fn binds(event: KeyEvents, editor: &mut Editor) {
                 KeyCode::Char('g') => {
                     editor.mode = editor.before_mode;
                     editor.cursor.z = 0;
-                    editor.command = String::new();
+                    editor.input_command = String::new();
                 }
                 _ => {}
             }
@@ -165,29 +166,66 @@ pub fn binds(event: KeyEvents, editor: &mut Editor) {
                 Mode::Command => {
                     match event.code {
                         KeyCode::Char(c) => {
-                            if editor.cursor.z >= editor.command.len() {
-                                editor.command.push(c);
+                            if editor.cursor.z >= editor.input_command.len() {
+                                editor.input_command.push(c);
                             } else {
-                                editor.command.insert(editor.cursor.z, c);
+                                editor.input_command.insert(editor.cursor.z, c);
                             }
                             editor.cursor.z += 1;
                         }
                         KeyCode::Left  if editor.cursor.z > 0 => editor.cursor.z -= 1,
-                        KeyCode::Right if editor.command.len() > editor.cursor.z => editor.cursor.z += 1,
+                        KeyCode::Right if editor.input_command.len() > editor.cursor.z => editor.cursor.z += 1,
                         KeyCode::Backspace => {
                             if editor.cursor.z > 0 {
-                                editor.command.remove(editor.cursor.z - 1);
+                                editor.input_command.remove(editor.cursor.z - 1);
                                 editor.cursor.z -= 1;
                             }
                         }
-                        KeyCode::Enter => {
-                            let reset = |editor: &mut Editor| { editor.command = String::new(); editor.cursor.z = 0; };
-                            match editor.command.as_str() {
+                        KeyCode::Enter if !editor.command.waiting => {
+                            let reset = |editor: &mut Editor| { editor.input_command = String::new(); editor.cursor.z = 0; };
+                            match editor.input_command.as_str() {
                                 "hi" => {
                                     reset(editor);
                                     editor.output = "Hello, world!".to_string();
                                 }
+                                "coop" => {
+                                    editor.output = "Let us know if you want to join or host a collaborative session. [join/host]".to_string();
+                                    editor.command.waiting = true;
+                                    editor.command.current = editor.input_command.clone();
+                                    reset(editor);
+                                }
                                 _ => editor.output = "Invalid command".to_string()
+                            }
+                        }
+                        KeyCode::Enter if editor.command.waiting => {
+                            let reset = |editor: &mut Editor| { editor.input_command = String::new(); editor.cursor.z = 0; };
+                            match editor.command.current.as_str() {
+                                "coop" => {
+                                    match editor.input_command.as_str() {
+                                        "join" if editor.command.context == 0 => {
+                                            reset(editor);
+                                            editor.command.waiting = false;
+                                            editor.output = "Searching for server..".to_string();
+                                            editor.force_updates = true;
+                                        }
+                                        "host" if editor.command.context == 0 => {
+                                            reset(editor);
+                                            editor.command.waiting = false;
+                                            editor.output = format!(
+                                                "Server started. {}",
+                                                " 127.0.0.1:6569 ".on_yellow().black()
+                                            );
+                                        }
+                                        _ => {
+                                            reset(editor);
+                                            editor.output = format!("command '{}' did not understand his input.", editor.command.current.clone().on_yellow().black());
+                                        }
+                                    }
+                                }
+                                _ => {
+                                    reset(editor);
+                                    editor.output = format!("command '{}' did not understand his input.", editor.command.current.clone().on_yellow().black())
+                                }
                             }
                         }
                         _ => {}

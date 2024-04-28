@@ -3,7 +3,7 @@ use structs::KeyEvents;
 use crossterm::event::{self, KeyEvent};
 
 
-pub fn listenner() -> KeyEvents {
+pub fn listener() -> KeyEvents {
     while let Ok(event) = event::read() {
         match event {
             event::Event::Key(KeyEvent {

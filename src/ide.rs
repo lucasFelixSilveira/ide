@@ -14,6 +14,7 @@ use structs::Editor;
 use structs::Interface;
 use structs::File;
 use structs::KeyEvents;
+use structs::Mode;
 
 pub fn run() {
     let mut editor: Editor = Editor::default();
@@ -35,7 +36,7 @@ fn assemble_ui(local: &mut PathBuf, editor: &mut Editor) {
             let files: Vec<File> = utils::fs::get_all(&local.display().to_string());
             editor.files = files.clone();
             files::assemble(files, editor);
-            let event: KeyEvents = keyboard::listenner();
+            let event: KeyEvents = keyboard::listener();
             keybinds::files(event, editor);
         },
         Interface::Editor => {
@@ -44,10 +45,26 @@ fn assemble_ui(local: &mut PathBuf, editor: &mut Editor) {
             editor.file_lines = lines.len();
             editor.file_lines_vec = lines.iter().map(|x| x.to_string()).collect();
             if editor.cursor.y > lines.len() { editor.cursor.y = lines.len() - 1 }
-            file_editor::assemble(content, editor);            
-            let event: KeyEvents = keyboard::listenner();
-            keybinds::file_editor(event, editor);
+            file_editor::assemble(content, editor);  
+            
+            if !editor.force_updates {
+                let event: KeyEvents = keyboard::listener();
+                keybinds::file_editor(event, editor);
+            } else {
+                std::thread::sleep(std::time::Duration::from_micros(500));
+                editor.updated += 1;
+                if editor.updated >= editor.force_quant {
+                    match editor.mode {
+                        Mode::Command => {
+                            editor.updated = 0;
+                            editor.force_quant = 3;
+                            editor.force_updates = false;
+                            editor.output = "The request took too long. Process finished.".to_string()
+                        }
+                        _ => {}
+                    }
+                }
+            }
         }
-        Interface::Clipboard => todo!()
     }
 }

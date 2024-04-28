@@ -8,3 +8,6 @@ edition = "2021"
 [dependencies]
 colored = "2.0"
 crossterm = "0.25.0"
+async-std = "1.10.0"
+futures = "*"
+tokio = { version = "1", features = ["full"] }
