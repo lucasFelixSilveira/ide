@@ -52,7 +52,11 @@ pub fn binds(event: KeyEvents, editor: &mut Editor) {
                         KeyCode::Left  | KeyCode::Char('a') | KeyCode::Char('l') | KeyCode::Char('f') if editor.cursor.x > 0 => editor.cursor.x -= 1,
                         KeyCode::Left  | KeyCode::Char('a') | KeyCode::Char('l') | KeyCode::Char('f') if editor.cursor.x == 0 && editor.cursor.y != 0 => { editor.cursor.x = editor.file_lines_vec[editor.cursor.y-1].len(); editor.cursor.y -= 1; },
                         KeyCode::Right | KeyCode::Char('d') | KeyCode::Char('h') | KeyCode::Char('b') => editor.cursor.x += 1,
-                        KeyCode::Char('i') => editor.mode = Mode::Insert,
+                        KeyCode::Char('i') => {
+                            editor.mode = Mode::Insert;
+                            let perm_max: usize = editor.file_lines_vec[editor.cursor.y].len();
+                            if editor.cursor.x > perm_max { editor.cursor.x = perm_max; }
+                        },
                         KeyCode::Esc => {
                             editor.interface = Interface::Files;
                             fs::remove_file(&editor.file_tmp).unwrap();

@@ -2,25 +2,33 @@ use crossterm::terminal;
 use std::env;
 use std::fs;
 use std::path::PathBuf;
-use crate::structs::{self, Editor, Interface, File, KeyEvents};
-use crate::utils::{terminal::clear, self};
+use crate::structs;
+use crate::utils;
+use crate::assemblers;
 use crate::keyboard;
 use crate::keybinds;
-use assemblers::{files, file_editor, self};
+use utils::terminal::clear;
+use assemblers::files;
+use assemblers::file_editor;
+use structs::Editor;
+use structs::Interface;
+use structs::File;
+use structs::KeyEvents;
 
 pub fn run() {
     let mut editor: Editor = Editor::default();
     terminal::enable_raw_mode().expect("Failed to enable raw mode");
-
-    while editor.stopped {
-        let local = env::current_dir().unwrap();
-        assemble_ui(&local, &mut editor);
+    let mut local: PathBuf = env::current_dir().unwrap();
+    
+    while !editor.stopped {
+        assemble_ui(&mut local, &mut editor);
+        local = env::current_dir().unwrap();
     }
 
     terminal::disable_raw_mode().expect("Failed to disable raw mode");
 }
 
-fn assemble_ui(local: &PathBuf, editor: &mut Editor) {
+fn assemble_ui(local: &mut PathBuf, editor: &mut Editor) {
     clear();
     match editor.interface {
         Interface::Files => {
@@ -40,6 +48,6 @@ fn assemble_ui(local: &PathBuf, editor: &mut Editor) {
             let event: KeyEvents = keyboard::listenner();
             keybinds::file_editor(event, editor);
         }
-        _ => todo!()
+        Interface::Clipboard => todo!()
     }
 }

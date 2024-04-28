@@ -6,7 +6,7 @@ use std::path::PathBuf;
 pub enum Interface {
     Files,
     Editor,
-    Clipboard // to do.
+    Clipboard
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
