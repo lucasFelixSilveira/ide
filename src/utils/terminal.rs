@@ -1,5 +1,5 @@
 use crossterm::terminal::size;
-use std::process::Command;
+use std::{io::Write, process::Command};
 
 pub fn dimensions() -> (u16, u16) {
     size().unwrap()
@@ -18,4 +18,5 @@ pub fn clear() {
             .status()
             .expect("_");
     }
+    std::io::stdout().flush().unwrap();
 }

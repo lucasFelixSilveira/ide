@@ -13,7 +13,15 @@ fn main() -> std::io::Result<()> {
     });
 
     _ = std::thread::spawn(|| {
-        ide::run(std::env::current_exe().unwrap().display().to_string().rsplit_once(std::path::MAIN_SEPARATOR).unwrap().0.to_string())
+        ide::run(
+            std::env::current_exe()
+                .unwrap()
+                .display()
+                .to_string()
+                .rsplit_once(std::path::MAIN_SEPARATOR)
+                .unwrap().0
+                .to_string()
+        )
     });
 
     match coop_thread.join().unwrap() {
