@@ -11,3 +11,5 @@ crossterm = "0.25.0"
 async-std = "1.10.0"
 futures = "*"
 tokio = { version = "1", features = ["full"] }
+actix-web = "4.0"
+reqwest = "0.11"

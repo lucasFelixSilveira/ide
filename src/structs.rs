@@ -12,7 +12,8 @@ pub enum Interface {
 pub enum Mode {
     Insert,
     Movement,
-    Command
+    Command,
+    Watching
 }
 
 #[derive(Debug, Clone)]
@@ -55,7 +56,6 @@ impl Command {
 
 #[derive(Debug, Clone)]
 pub struct CoopPerson {
-    pub cursor: Cursor,
     pub color: usize,
     pub name: String,
     pub id: usize
@@ -64,7 +64,9 @@ pub struct CoopPerson {
 #[derive(Debug, Clone)]
 pub struct CoopCoding {
     pub members: Vec<CoopPerson>,
-    pub password: String
+    pub possession: usize,
+    pub enable: bool,
+    pub started: bool
 }
 
 #[derive(Debug, Clone)]
@@ -83,7 +85,8 @@ pub struct Editor {
     pub file_lines_vec: Vec<String>,
     pub command: Command,
     pub force_quant: usize,
-    pub updated: usize
+    pub updated: usize,
+    pub coop: CoopCoding
 }
 
 impl Editor {
@@ -103,6 +106,22 @@ impl Editor {
             file_lines_vec: Vec::new(),
             command: Command::default(),
             force_quant: 0,
+            coop: CoopCoding {
+                members: vec![
+                    CoopPerson {
+                        color: 0,
+                        id: 0,
+                        name: if cfg!(windows) {
+                            std::env::var("USERNAME").unwrap_or_else(|_| "unknown".to_string())
+                        } else {
+                            std::env::var("USER").unwrap_or_else(|_| "unknown".to_string())
+                        }
+                    }
+                ],
+                possession: 0,
+                enable: false,
+                started: false
+            },
             updated: 0
         }
     }

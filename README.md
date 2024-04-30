@@ -47,7 +47,7 @@ cargo build --release # Compile the repository
 
 # Commands
 - `Hi` Say Hello world! _(**Exemple command**)_
-- `coop` Join or host a collaborative session. _(**Still not working.**)_
+- `coop` Join or host a collaborative session. _(**Still in development but working.**)_
 
 ### This is one of my first public projects done in Rust. There will certainly be future changes.
 

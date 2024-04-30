@@ -15,11 +15,11 @@ pub fn assemble(files: Vec<File>, editor: &mut Editor) {
     let cursor: Cursor = editor.cursor;
     for (index, file) in files.iter().enumerate() {
         let data: String = format!("{} {}", if file.is_folder { '+' } else { '-' }, file.name);
-        if files.len() > height.into() && index < cursor.file {}
+        if files.len() > usize::from(height) && index < cursor.file {}
         else if index == cursor.file {
             println!("{}", data.purple())
         } 
-        else if (cursor.file + index) <= height.into() { 
+        else if (cursor.file + index) <= usize::from(height) { 
             println!("{data}"); 
         };
     }

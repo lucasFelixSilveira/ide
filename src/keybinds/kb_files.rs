@@ -9,6 +9,7 @@ use structs::Editor;
 use structs::File;
 use std::env;
 use std::fs;
+use reqwest;
 
 pub fn binds(event: KeyEvents, editor: &mut Editor) {
     match event.modifiers {
@@ -48,6 +49,13 @@ pub fn binds(event: KeyEvents, editor: &mut Editor) {
                 }
                 KeyCode::Char('x') => {
                     terminal::clear();
+                    let rt = tokio::runtime::Runtime::new().unwrap();
+                    rt.block_on(async {
+                        let response = reqwest::get(format!("http://127.0.0.1:6932/shutdown/{}", editor.coop.enable)).await;
+                        if response.unwrap().status().is_success() && editor.coop.enable {
+                            println!("Killed coop server.");
+                        }
+                    });
                     println!("Killed process.");
                     editor.stopped = true;
                 }

@@ -46,6 +46,7 @@ pub fn binds(event: KeyEvents, editor: &mut Editor) {
         }
         _ => {
             match editor.mode {
+                Mode::Watching => {}
                 Mode::Movement => {
                     match event.code {
                         KeyCode::Down  | KeyCode::Char('s') | KeyCode::Char('k') if editor.file_lines - 1 > editor.cursor.y => editor.cursor.y += 1,
@@ -188,6 +189,12 @@ pub fn binds(event: KeyEvents, editor: &mut Editor) {
                                     reset(editor);
                                     editor.output = "Hello, world!".to_string();
                                 }
+                                "pass" => {
+                                    editor.command.current = editor.input_command.clone();
+                                    editor.command.waiting = true;
+                                    editor.output = "Enter the name of the person who wishes to transfer ownership of the control.".to_string();
+                                    reset(editor);
+                                }
                                 "coop" => {
                                     editor.output = "Let us know if you want to join or host a collaborative session. [join/host]".to_string();
                                     editor.command.waiting = true;
@@ -205,16 +212,32 @@ pub fn binds(event: KeyEvents, editor: &mut Editor) {
                                         "join" if editor.command.context == 0 => {
                                             reset(editor);
                                             editor.command.waiting = false;
-                                            editor.output = "Searching for server..".to_string();
-                                            editor.force_updates = true;
+                                            let rt = tokio::runtime::Runtime::new().unwrap();
+                                            rt.block_on(async {
+                                                let response = reqwest::get("http://127.0.0.1:6932/").await;
+                                                if! response.unwrap().status().is_success() && editor.coop.enable {
+                                                    editor.output = "Coop server not found.".to_string();
+                                                }
+                                                else {
+                                                    _ = reqwest::get(format!("http://127.0.0.1:6932/new_user/{}", editor.coop.members[0].name)).await;
+                                                    editor.output = "Server found.".to_string();
+                                                    editor.mode = editor.before_mode;
+                                                    editor.cursor.z = 0;
+                                                    editor.input_command = String::new();
+                                                    editor.force_updates = true;
+                                                    editor.mode = Mode::Watching;
+                                                }
+                                            });
                                         }
                                         "host" if editor.command.context == 0 => {
                                             reset(editor);
                                             editor.command.waiting = false;
                                             editor.output = format!(
                                                 "Server started. {}",
-                                                " 127.0.0.1:6569 ".on_yellow().black()
+                                                " 6932 ".on_yellow().black()
                                             );
+                                            editor.coop.enable = true;
+                                            editor.coop.started = true;
                                         }
                                         _ => {
                                             reset(editor);
@@ -230,7 +253,7 @@ pub fn binds(event: KeyEvents, editor: &mut Editor) {
                         }
                         _ => {}
                     }
-                }
+                },
             }
         }
     }
