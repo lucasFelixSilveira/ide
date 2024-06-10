@@ -12,6 +12,8 @@ use std::path::PathBuf;
 use crossterm::event::KeyCode;
 use crossterm::event::KeyModifiers;
 
+use colored::*;
+
 pub fn valid(editor: &mut Editor, press: KeyEvents) {
   match press.modifiers {
     KeyModifiers::CONTROL => {
@@ -20,8 +22,11 @@ pub fn valid(editor: &mut Editor, press: KeyEvents) {
           let file_path: PathBuf = editor.files[editor.file].path.clone();
           std::fs::write(file_path, editor.content.clone()).unwrap();
           clear();
-          println!("Saving...");
-          std::thread::sleep(std::time::Duration::new(1, 0));
+          println!("{}", "Saving...".yellow());
+          std::thread::sleep(std::time::Duration::from_millis(1000));
+          terminal::back_to_zero();
+          println!("{}", "File saved!".green());
+          std::thread::sleep(std::time::Duration::from_millis(300));
         }
         _ => {}
       }

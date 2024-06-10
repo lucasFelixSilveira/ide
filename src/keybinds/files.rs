@@ -10,6 +10,8 @@ use terminal::clear;
 
 use crossterm::event::KeyCode;
 
+use colored::*;
+
 pub fn valid(editor: &mut Editor, press: KeyEvents) {
   match press.code {
     KeyCode::Down | KeyCode::Char('s') if editor.file != editor.files.len() - 1 => editor.file += 1,
@@ -36,7 +38,7 @@ pub fn valid(editor: &mut Editor, press: KeyEvents) {
     }
     KeyCode::Char('x') => {
       clear();      
-      println!("Process killed.");
+      println!("{}", "Process killed.".red());
       editor.quit = true
     }
     _ => {}
