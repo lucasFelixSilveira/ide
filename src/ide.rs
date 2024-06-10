@@ -20,8 +20,6 @@ pub fn run() {
   while !editor.quit {
     back_to_zero();
     ui::assembler(&mut editor);
-    
-    let press: KeyEvents = listener();
-    keybinds::emit(&mut editor, press);
+    keybinds::emit(&mut editor, listener());
   }
 }
