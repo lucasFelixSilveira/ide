@@ -1,22 +1,29 @@
-use crossterm::terminal::size;
-use std::{io::Write, process::Command};
+use crossterm::{
+  execute,
+  cursor::MoveTo,
+  terminal::size
+};
 
-pub fn dimensions() -> (u16, u16) {
-    size().unwrap()
+pub fn back_to_zero() {
+  execute!(std::io::stdout(), MoveTo(0,0)).expect("_");
+}
+
+pub fn get_size() -> (u16, u16) {
+  size().unwrap()
 }
 
 pub fn clear() {
-    let is_windows = cfg!(target_os = "windows");
-    if is_windows {
-        Command::new("cmd")
-            .args(&["/C", "cls"])
-            .status()
-            .expect("_");
-    } else {
-        Command::new("sh")
-            .args(&["-c", "clear"])
-            .status()
-            .expect("_");
-    }
-    std::io::stdout().flush().unwrap();
+  let win = cfg!(target_os = "windows");
+
+  if win {
+    std::process::Command::new("cmd")
+      .args(&["/C", "cls"])
+      .status()
+      .expect("_");
+  } else {
+    std::process::Command::new("sh")
+      .args(&["-C", "clear"])
+      .status()
+      .expect("_");
+  }
 }

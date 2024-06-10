@@ -34,20 +34,16 @@ cargo build --release # Compile the repository
 # Keybinds
 ### In file explorer:
 - `X` Kill process 🚫
-- `Backspace` Back one directory ↩️
-- `Enter` Acess file or folder 🚪
+- `Q` or `Backspace` Back one directory ↩️
+- `E` or `Enter` Acess file or folder 🚪
 
 ### In editor
 - `Escape` Exit file or back mode ❌
 - `^S` Save file 📂
-- `I` To insert mode 📝
-- `M-X` To open command input 🟢
-- `^G` To close command input 🔴
+- `I` To **insert** mode 📝
+- `M-Down` Move down a line of text
+- `M-Up` Move up a line of text
 
-
-# Commands
-- `Hi` Say Hello world! _(**Exemple command**)_
-- `coop` Join or host a collaborative session. _(**Still in development but working.**)_
 
 ### This is one of my first public projects done in Rust. There will certainly be future changes.
 

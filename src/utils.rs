@@ -1,2 +1,2 @@
-pub mod fs;
+pub mod explorer;
 pub mod terminal;
