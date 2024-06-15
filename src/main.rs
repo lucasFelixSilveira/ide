@@ -6,5 +6,5 @@ mod keyboard;
 mod keybinds;
 
 fn main() {
-    ide::run();
+  ide::run();
 }

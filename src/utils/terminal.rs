@@ -4,12 +4,9 @@ use crossterm::{
   terminal::size
 };
 
+pub fn get_size() -> (u16, u16) { size().unwrap() }
 pub fn back_to_zero() {
   execute!(std::io::stdout(), MoveTo(0,0)).expect("_");
-}
-
-pub fn get_size() -> (u16, u16) {
-  size().unwrap()
 }
 
 pub fn clear() {
