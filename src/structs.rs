@@ -14,7 +14,7 @@ pub struct Editor {
   pub content: String,
   pub mode: Mode,
   pub cursor: (usize, usize),
-  pub listen: (LMemory, String)
+  pub listen: (String, LMemory, String)
 }
 
 impl Editor {
@@ -29,7 +29,7 @@ impl Editor {
       content: String::new(),
       mode: Mode::Movement,
       cursor: (0,0),
-      listen: (LMemory::Unknown, String::new())
+      listen: (String::new(), LMemory::Unknown, String::new())
     }
   }
 }
@@ -52,6 +52,8 @@ pub enum Interface {
 pub enum LMemory {
   Unknown,
   Rename,
+  DeleteFile,
+  DeleteFolder,
   NFolder,
   NFile
 }

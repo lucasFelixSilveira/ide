@@ -3,6 +3,7 @@ use std::fs;
 use crate::structs;
 use crate::structs::FOption;
 use crate::structs::LMemory;
+use colored::Colorize;
 use structs::Interface;
 use structs::Editor;
 use structs::Mode;
@@ -15,6 +16,8 @@ use terminal::clear;
 
 use crossterm::event::KeyCode;
 
+use colored::*;
+
 pub fn valid(editor: &mut Editor, press: KeyEvents) {
   let options: Vec<FOption> = FOption::properties();
   match press.code {
@@ -24,23 +27,25 @@ pub fn valid(editor: &mut Editor, press: KeyEvents) {
       let selected: FOption = options[editor.prop].clone();
       match selected.fun {
         FEOption::Delete if editor.files.len() > 0 && editor.files[editor.file].is_folder => {
-          fs::remove_dir_all(editor.files[editor.file].clone().path).unwrap();
+          editor.mode = Mode::Listen;
+          editor.listen = (format!("Do you want delete the '{}' folder? {}", editor.files[editor.file].name, " [yes/ALT+X] ".on_yellow().black()), LMemory::DeleteFolder, String::new());
         }
         FEOption::Delete if editor.files.len() > 0 && !editor.files[editor.file].is_folder => {
-          fs::remove_file(editor.files[editor.file].clone().path).unwrap();
+          editor.mode = Mode::Listen;
+          editor.listen = (format!("Do you want delete the '{}' file? {}", editor.files[editor.file].name, " [yes/ALT+X] ".on_yellow().black()), LMemory::DeleteFile, String::new());
         }
         FEOption::Back => {},
         FEOption::New => {
           editor.mode = Mode::Listen;
-          editor.listen = (LMemory::NFile, String::new());
+          editor.listen = (String::from("Name"), LMemory::NFile, String::new());
         }
         FEOption::NewF => {
           editor.mode = Mode::Listen;
-          editor.listen = (LMemory::NFolder, String::new());
+          editor.listen = (String::from("Name"), LMemory::NFolder, String::new());
         }
         FEOption::Rename if editor.files.len() > 0 => {
           editor.mode = Mode::Listen;
-          editor.listen = (LMemory::Rename, String::new());
+          editor.listen = (String::from("New name"), LMemory::Rename, String::new());
         }
         _ => {}
       }

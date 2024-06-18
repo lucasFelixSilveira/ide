@@ -30,23 +30,23 @@ pub fn valid(editor: &mut Editor, press: KeyEvents) {
       match press.modifiers {
         KeyModifiers::ALT if press.code == KeyCode::Char('x') => {
           editor.mode = Mode::Movement;
-          editor.listen = (LMemory::Unknown, String::new());
+          editor.listen = (String::new(), LMemory::Unknown, String::new());
           clear();
         }
         _ => match press.code {
           KeyCode::Char(c) => {
-            editor.listen.1.push(c);
+            editor.listen.2.push(c);
           }
-          KeyCode::Backspace if editor.listen.1.len() > 0 => {
-            editor.listen.1.remove(editor.listen.1.len()-1);
+          KeyCode::Backspace if editor.listen.2.len() > 0 => {
+            editor.listen.2.remove(editor.listen.2.len()-1);
             
-            execute!(std::io::stdout(), MoveTo(( 2 + editor.listen.1.len() ) as u16,height-2)).expect("_");
+            execute!(std::io::stdout(), MoveTo(( 2 + editor.listen.2.len() ) as u16,height-2)).expect("_");
             print!(" ");
           },
           KeyCode::Enter => {
             properties::valid(editor);
             editor.mode = Mode::Movement;
-            editor.listen = (LMemory::Unknown, String::new());
+            editor.listen = (String::new(), LMemory::Unknown, String::new());
             clear();
           }
           _ => {}
@@ -56,7 +56,7 @@ pub fn valid(editor: &mut Editor, press: KeyEvents) {
     _ => match press.code {
       KeyCode::Down  | KeyCode::Char('s') if editor.file != editor.files.len() - 1 => editor.file += 1,
       KeyCode::Up    | KeyCode::Char('w') if editor.file != 0 => editor.file -= 1,
-      KeyCode::Enter | KeyCode::Char('e') => {
+      KeyCode::Enter | KeyCode::Char(' ') | KeyCode::Char('e') => {
         let file: File = editor.files[editor.file].clone();
         match file.is_folder {
           false => {

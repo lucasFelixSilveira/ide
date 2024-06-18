@@ -62,8 +62,8 @@ pub fn assemble(editor: &mut Editor, files: Vec<File>) {
 
   if editor.mode == Mode::Listen {
     execute!(std::io::stdout(), MoveTo(0,height-3)).expect("_");
-    println!("{}\n{} {}", "_".repeat(width as usize), ">".purple(), editor.listen.1);
-    execute!(std::io::stdout(), MoveTo(( 2 + editor.listen.1.len() ) as u16,height-2)).expect("_");
+    println!("{} {}\n{} {}", editor.listen.0, "_".repeat((width as usize) - 1 - editor.listen.0.len()), ">".purple(), editor.listen.2);
+    execute!(std::io::stdout(), MoveTo(( 2 + editor.listen.2.len() ) as u16,height-2)).expect("_");
   }
 
 }

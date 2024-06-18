@@ -9,7 +9,7 @@ use terminal::clear;
 use colored::*;
 
 pub fn valid(editor: &mut Editor) {
-  match editor.listen.0 {
+  match editor.listen.1 {
     LMemory::NFile => {
       std::fs::write(
         format!(
@@ -19,7 +19,7 @@ pub fn valid(editor: &mut Editor) {
               .unwrap()
               .display(), 
             std::path::MAIN_SEPARATOR,
-            editor.listen.1
+            editor.listen.2
         ), String::new()
       ).unwrap();
       
@@ -37,7 +37,7 @@ pub fn valid(editor: &mut Editor) {
               .unwrap()
               .display(), 
             std::path::MAIN_SEPARATOR,
-            editor.listen.1
+            editor.listen.2
         )
       ).unwrap();
       
@@ -64,9 +64,19 @@ pub fn valid(editor: &mut Editor) {
               .unwrap()
               .display(), 
             std::path::MAIN_SEPARATOR,
-            editor.listen.1
+            editor.listen.2
         )
       ).unwrap()
+    },
+    LMemory::DeleteFile => {
+      if editor.listen.2.to_lowercase() == "yes" {
+        std::fs::remove_file(editor.files[editor.file].clone().path).unwrap();
+      }
+    },
+    LMemory::DeleteFolder => {
+      if editor.listen.2.to_lowercase() == "yes" {
+        std::fs::remove_dir_all(editor.files[editor.file].clone().path).unwrap();
+      }
     }
     _ => {}
   }

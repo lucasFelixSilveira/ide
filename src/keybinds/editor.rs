@@ -46,6 +46,17 @@ pub fn valid(editor: &mut Editor, press: KeyEvents) {
           }
         }
 
+        KeyCode::Char('s') => {
+          let file_path: PathBuf = editor.files[editor.file].path.clone();
+          std::fs::write(file_path, editor.content.clone()).unwrap();
+          clear();
+          println!("{}", "Saving...".yellow());
+          std::thread::sleep(std::time::Duration::from_millis(1000));
+          terminal::back_to_zero();
+          println!("{}", "File saved!".green());
+          std::thread::sleep(std::time::Duration::from_millis(300));
+        }
+
         KeyCode::Down if editor.page_down < lines.len() - 1 => editor.page_down += 1,
         _ => {}
       }
