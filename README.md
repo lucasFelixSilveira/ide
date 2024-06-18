@@ -35,13 +35,14 @@ cargo build --release # Compile the repository
 ### In file explorer:
 - `X` Kill process 🚫
 - `Q` or `Backspace` Back one directory ↩️
-- `E` or `Enter` Acess file or folder 🚪
+- `E` or `Enter` or `Space` Acess file or folder 🚪
 - `F` Acess `Properties` menu 📓
 
 ### In editor
-- `Escape` Exit file or back mode ❌
+- `L` Exit file
+- `Escape` Return to **Movement** mode
 - `^S` or `M-S` Save file 📂
-- `I` To **insert** mode 📝
+- `I` To **Insert** mode 📝
 - `M-Down` Move down a line of text
 - `M-Up` Move up a line of text
 
