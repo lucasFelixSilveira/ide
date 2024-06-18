@@ -1,5 +1,3 @@
-use std::fs;
-
 use crate::structs;
 use crate::structs::FOption;
 use crate::structs::LMemory;
@@ -19,7 +17,7 @@ use crossterm::event::KeyCode;
 use colored::*;
 
 pub fn valid(editor: &mut Editor, press: KeyEvents) {
-  let options: Vec<FOption> = FOption::properties();
+  let options: Vec<FOption> = FOption::properties(editor);
   match press.code {
     KeyCode::Down  | KeyCode::Char('s') if editor.prop != options.len() - 1 => editor.prop += 1,
     KeyCode::Up    | KeyCode::Char('w') if editor.prop != 0 => editor.prop -= 1,

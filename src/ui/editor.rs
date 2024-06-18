@@ -3,6 +3,7 @@ use crossterm::cursor::MoveTo;
 use crossterm::execute;
 use structs::Editor;
 use structs::File;
+use structs::Mode;
 
 use crate::utils;
 use utils::terminal;
@@ -20,8 +21,21 @@ pub fn assemble(editor: &mut Editor) {
 
   let local: String = format!("col: {} line: {} scrolled: {}", (x+1), (y+1), editor.page_down);
 
-  let division: String = "-".repeat((width as usize) - local.len() - 3);
-  println!("Editing '{name}' [{}] in {} mode.                    \n{division} {local}", editor.file, format!(" {:?} ", editor.mode).black().on_purple());
+  let division: String = "-".repeat((width as usize) - local.len() - 2);
+  let header_start: String = format!("Editing '{name}' in {} mode.", format!(" {:?} ", editor.mode).black().on_purple());
+  
+  let help: String = if editor.mode == Mode::Insert {
+    String::from("(Escape - Movement mode)")
+  } else if editor.mode == Mode::Movement {
+    String::from("(I - Insert mode) (L - Leave file)")
+  } else { String::new() };
+
+  let spaces_to_help: String = " ".repeat((width as usize) - header_start.len());
+  println!("{header_start}{spaces_to_help}\n{division} {local}");
+  execute!(std::io::stdout(), MoveTo(width - help.len() as u16 - 1, 0)).unwrap();
+  print!("{}", help.bold());
+  execute!(std::io::stdout(), MoveTo(0,2)).unwrap();
+
   let spaces: String = " ".repeat((width as usize)-1);
   print!("{}", format!("~{spaces}\n").repeat(usize::from(height-3)).purple());
   execute!(std::io::stdout(), MoveTo(0, 2)).expect("_");

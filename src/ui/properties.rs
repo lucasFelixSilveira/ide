@@ -54,13 +54,16 @@ pub fn assemble(editor: &mut Editor, files: Vec<FOption>) {
       println!("{text}");
     }
   }
-  
-  if editor.mode == Mode::Listen {
-    execute!(std::io::stdout(), MoveTo(0,height - 2)).expect("_");
-    println!("{}\n{} {}{}", "=".repeat(width as usize), ">".purple(), editor.listen.2, " ".repeat(width as usize - 2 - editor.listen.2.len() - 1));
-  }
 
   execute!(std::io::stdout(), MoveTo(0,0)).expect("_");
   println!("Properties{}\n{}", " ".repeat(usize::from(width) - "Properties".len() - 2), "-".repeat(usize::from(width)));
-  execute!(std::io::stdout(), MoveTo(0,height)).expect("_");
+
+  let help: String = if editor.mode == Mode::Movement {
+    String::from("(E - Select option)")
+  } else { String::new() };
+
+  execute!(std::io::stdout(), MoveTo(width - help.len() as u16 - 1, 0)).unwrap();
+  print!("{}", help.bold());
+  execute!(std::io::stdout(), MoveTo(0,height)).unwrap();
+  
 }

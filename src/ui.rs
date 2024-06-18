@@ -24,7 +24,8 @@ pub fn assembler(editor: &mut Editor) {
     }
     Interface::Properties => {
       utils::terminal::back_to_zero();
-      properties::assemble(editor, FOption::properties());
+      let options: Vec<FOption> = FOption::properties(editor);
+      properties::assemble(editor, options);
     }
   }
 }

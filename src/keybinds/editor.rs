@@ -63,7 +63,7 @@ pub fn valid(editor: &mut Editor, press: KeyEvents) {
     }
     _ => {
       match press.code {
-        KeyCode::Esc if editor.mode == Mode::Movement => editor.interface = Interface::Files,
+        KeyCode::Char('l') if editor.mode == Mode::Movement => editor.interface = Interface::Files,
         KeyCode::Esc if editor.mode == Mode::Insert => editor.mode = Mode::Movement,
         
         KeyCode::Char('w') if editor.mode == Mode::Movement && (editor.cursor.1 - editor.page_down) != 0 => {

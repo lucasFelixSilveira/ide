@@ -79,17 +79,12 @@ pub struct FOption {
 }
 
 impl FOption {
-  pub fn properties() -> Vec<FOption> {
-    vec![
+  pub fn properties(editor: &mut Editor) -> Vec<FOption> {
+    let mut options = vec![
       FOption {
         fun: FEOption::Back,
         label: String::from("Back"),
         symbol: '<'
-      },
-      FOption {
-        fun: FEOption::Delete,
-        label: String::from("Delete file"),
-        symbol: 'x'
       },
       FOption {
         fun: FEOption::Rename,
@@ -106,7 +101,19 @@ impl FOption {
         label: String::from("New file"),
         symbol: '+'
       }
-    ]
+    ];
+
+    if editor.files.len() > 0 {
+      let file = editor.files[editor.file].clone();
+
+      options.insert(1, FOption {
+        fun: FEOption::Delete,
+        label: format!("Delete the '{}' {}", file.name, if file.is_folder { "folder" } else { "file" }),
+        symbol: 'x'
+      });
+    } 
+
+    options
   }
 }
 

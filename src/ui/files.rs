@@ -57,8 +57,18 @@ pub fn assemble(editor: &mut Editor, files: Vec<File>) {
 
   
   execute!(std::io::stdout(), MoveTo(0,0)).expect("_");
-  println!("File explorer{}{}\n{}", " ".repeat(usize::from(width-4) - "File explorer".len() - 2), editor.file, "-".repeat(usize::from(width)));
+  println!("File explorer{}\n{}", " ".repeat(width as usize - "File explorer".len() - 2), "-".repeat(width as usize));
   execute!(std::io::stdout(), MoveTo(0, height)).expect("_");
+
+  let help: String = if editor.mode == Mode::Listen {
+    String::from("(M+X - Cancel) (Enter - Confirm)")
+  } else if editor.mode == Mode::Movement {
+    String::from("(E - Enter file) (Q - Back directory) (F - Properties menu) (X - Kill process)")
+  } else { String::new() };
+
+  execute!(std::io::stdout(), MoveTo(width - help.len() as u16 - 1, 0)).unwrap();
+  print!("{}", help.bold());
+  execute!(std::io::stdout(), MoveTo(0,height)).unwrap();
 
   if editor.mode == Mode::Listen {
     execute!(std::io::stdout(), MoveTo(0,height-3)).expect("_");
