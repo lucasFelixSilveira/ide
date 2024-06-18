@@ -40,7 +40,7 @@ cargo build --release # Compile the repository
 
 ### In editor
 - `Escape` Exit file or back mode ❌
-- `^S` Save file 📂
+- `^S` or `M-S` Save file 📂
 - `I` To **insert** mode 📝
 - `M-Down` Move down a line of text
 - `M-Up` Move up a line of text

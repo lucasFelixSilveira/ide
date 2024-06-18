@@ -25,9 +25,9 @@ pub fn assemble(editor: &mut Editor) {
   let header_start: String = format!("Editing '{name}' in {} mode.", format!(" {:?} ", editor.mode).black().on_purple());
   
   let help: String = if editor.mode == Mode::Insert {
-    String::from("(Escape - Movement mode)")
+    String::from("(Escape - Movement mode) (M-S - Save file)")
   } else if editor.mode == Mode::Movement {
-    String::from("(I - Insert mode) (L - Leave file)")
+    String::from("(I - Insert mode) (L - Leave file) (M-S - Save file)")
   } else { String::new() };
 
   let spaces_to_help: String = " ".repeat((width as usize) - header_start.len());

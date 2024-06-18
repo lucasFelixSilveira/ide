@@ -61,7 +61,7 @@ pub fn assemble(editor: &mut Editor, files: Vec<File>) {
   execute!(std::io::stdout(), MoveTo(0, height)).expect("_");
 
   let help: String = if editor.mode == Mode::Listen {
-    String::from("(M+X - Cancel) (Enter - Confirm)")
+    String::from("(M-X - Cancel) (Enter - Confirm)")
   } else if editor.mode == Mode::Movement {
     String::from("(E - Enter file) (Q - Back directory) (F - Properties menu) (X - Kill process)")
   } else { String::new() };
