@@ -21,7 +21,7 @@ pub fn assemble(editor: &mut Editor) {
   let local: String = format!("col: {} line: {} scrolled: {}", (x+1), (y+1), editor.page_down);
 
   let division: String = "-".repeat((width as usize) - local.len() - 3);
-  println!("Editing '{name}' in {} mode.                    \n{division} {local}", format!(" {:?} ", editor.mode).black().on_purple());
+  println!("Editing '{name}' [{}] in {} mode.                    \n{division} {local}", editor.file, format!(" {:?} ", editor.mode).black().on_purple());
   let spaces: String = " ".repeat((width as usize)-1);
   print!("{}", format!("~{spaces}\n").repeat(usize::from(height-3)).purple());
   execute!(std::io::stdout(), MoveTo(0, 2)).expect("_");

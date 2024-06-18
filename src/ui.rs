@@ -1,9 +1,11 @@
 mod files; 
 mod editor; 
+mod properties; 
 
 use crate::structs;
 use structs::Editor;
 use structs::Interface;
+use structs::FOption;
 
 use crate::utils;
 use utils::explorer;
@@ -19,6 +21,10 @@ pub fn assembler(editor: &mut Editor) {
     Interface::Editor => {
       utils::terminal::back_to_zero();
       editor::assemble(editor);
+    }
+    Interface::Properties => {
+      utils::terminal::back_to_zero();
+      properties::assemble(editor, FOption::properties());
     }
   }
 }

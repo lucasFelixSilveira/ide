@@ -3,7 +3,6 @@ use crate::keybinds;
 
 use crate::structs;
 use structs::Editor;
-use structs::KeyEvents;
 
 use crate::utils;
 use utils::terminal;

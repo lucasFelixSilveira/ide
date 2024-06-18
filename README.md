@@ -36,6 +36,7 @@ cargo build --release # Compile the repository
 - `X` Kill process 🚫
 - `Q` or `Backspace` Back one directory ↩️
 - `E` or `Enter` Acess file or folder 🚪
+- `F` Acess `Properties` menu 📓
 
 ### In editor
 - `Escape` Exit file or back mode ❌
