@@ -72,11 +72,13 @@ pub fn valid(editor: &mut Editor) {
       if editor.listen.2.to_lowercase() == "yes" {
         std::fs::remove_file(editor.files[editor.file].clone().path).unwrap();
       }
+      editor.file = 0;
     },
     LMemory::DeleteFolder => {
       if editor.listen.2.to_lowercase() == "yes" {
         std::fs::remove_dir_all(editor.files[editor.file].clone().path).unwrap();
       }
+      editor.file = 0;
     }
     _ => {}
   }
