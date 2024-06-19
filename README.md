@@ -27,7 +27,7 @@ cargo run # Compile and run the code
 # Do you want to compile the program completely?
 cargo build --release # Compile the repository
 
-# In the `target/release` directory, you can find `lgvim.exe` (windows) or `lgvim` (Unix based systems).
+# In the `target/release` directory, you can find `beditor.exe` (windows) or `beditor` (Unix based systems).
 # You must copy this executable and place it in a folder defined in your environment variables. (In the `path` field)
 ```
 
@@ -35,16 +35,16 @@ cargo build --release # Compile the repository
 ### In file explorer:
 - `X` Kill process 🚫
 - `Q` or `Backspace` Back one directory ↩️
-- `E` or `Enter` or `Space` Acess file or folder 🚪
+- `E` or (`Enter`|`Space`) to acess file or folder 🚪
 - `F` Acess `Properties` menu 📓
 
 ### In editor
-- `L` Exit file
-- `Escape` Return to **Movement** mode
+- `L` Exit file 🚪
+- `Escape` Return to **Movement** mode 🦶
 - `^S` or `M-S` Save file 📂
 - `I` To **Insert** mode 📝
-- `M-Down` Move down a line of text
-- `M-Up` Move up a line of text
+- `M-Down` Move down a line of text ⬇
+- `M-Up` Move up a line of text ⬆
 
 
 ### This is one of my first public projects done in Rust. There will certainly be future changes.
