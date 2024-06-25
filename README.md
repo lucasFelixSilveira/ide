@@ -46,6 +46,12 @@ cargo build --release # Compile the repository
 - `M-Down` Move down a line of text ⬇
 - `M-Up` Move up a line of text ⬆
 
+<div align="center">
+
+## Example of use in the VScode terminal
+
+<img src="https://imgur.com/npX5xyU.png" width="80%">
+</div>
 
 ### This is one of my first public projects done in Rust. There will certainly be future changes.
 
