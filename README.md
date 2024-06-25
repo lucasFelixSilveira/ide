@@ -12,7 +12,7 @@
 
 > ## How it works?
 
-### The entire code was written in Rust, using just a `crate` ***(library)***. The `terminal`.
+### The entire code was written in Rust, using just two `crate`s ***(library)***. The `crossterm` and `colored`.
 
 #
 
