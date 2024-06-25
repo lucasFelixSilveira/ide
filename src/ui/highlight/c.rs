@@ -3,62 +3,54 @@ use crossterm::style::Stylize;
 
 fn keywords() -> Vec<String> {
   vec![
-    String::from("fn"),
-    String::from("pub"),
-    String::from("let"),
-    String::from("loop"),
+    String::from("case"),
     String::from("while"),
     String::from("for"),
     String::from("do"),
-    String::from("impl"),
+    String::from("typeof"),
     String::from("struct"),
     String::from("enum"),
-    String::from("use"),
-    String::from("crate"),
+    String::from("include"),
+    String::from("define"),
     String::from("mod"),
     String::from("else"),
     String::from("if"),
-    String::from("in"),
     String::from("union"),
     String::from("continue"),
     String::from("break"),
-    String::from("match"), 
-    String::from("return") 
+    String::from("swtich"),
+    String::from("pragma"),
+    String::from("ifdef"),
+    String::from("elsif"),
+    String::from("endif"),
+    String::from("ifndef"),
+    String::from("volatile"),
+    String::from("not"),
+    String::from("and"),
+    String::from("xor"),
+    String::from("return"),
+    String::from("defined")    
   ]
 }
 
 fn std_types() -> Vec<String> {
   vec![
-    String::from("u8"),
-    String::from("u16"),
-    String::from("u32"),
-    String::from("u64"),
-    String::from("u128"),
-    String::from("i8"),
-    String::from("i16"),
-    String::from("i32"),
-    String::from("i64"),
-    String::from("i128"),
-    String::from("bool"),
-    String::from("Option"),
-    String::from("Result"),
-    String::from("Vec"),
-    String::from("String"),
-    String::from("str"),
     String::from("char"),
-    String::from("usize"),
-    String::from("byte")
+    String::from("short"),
+    String::from("int"),
+    String::from("long"),
+    String::from("unsigned"),
+    String::from("void")
   ]
 }
 
 fn special_keywords() -> Vec<String> {
   vec![
-    String::from("mut"),
     String::from("static"),
     String::from("const"),
-    String::from("self"),
-    String::from("false"),
-    String::from("true")
+    String::from("goto"),
+    String::from("asm"),
+    String::from("#")
   ]
 }
 
@@ -72,7 +64,6 @@ fn operators() -> Vec<String> {
     String::from("*"),
     String::from("/"),
     String::from("%"),
-    String::from("#"),
     String::from("="),
     String::from("-"),
     String::from("+")
@@ -85,6 +76,7 @@ pub fn parse(line: String) -> String {
   let operators: Vec<String> = operators();
   let std_types: Vec<String> = std_types();
   let mut string_mode: bool = false;
+  let mut mac_mode: bool = false;
 
   let mut final_string: String = String::new();
 
@@ -130,6 +122,23 @@ pub fn parse(line: String) -> String {
     } 
 
     if 
+      !string_mode &&
+      (
+        lexame.starts_with('<') && lexame.ends_with('<') && line.clone().trim().starts_with('#') ||
+        lexame.starts_with('>') && lexame.ends_with('>') && line.clone().trim().starts_with('#') 
+      )
+    {
+      final_string.push_str(&format!("{}", lexame.bright_green().bold()));
+      mac_mode = !mac_mode;
+      continue;
+    }
+
+    if mac_mode {
+      final_string.push_str(&format!("{}", lexame.bright_green().bold()));
+      continue;
+    }
+
+    if
       lexame.starts_with('"') && lexame.ends_with('"') ||
       lexame.starts_with('\'') && lexame.ends_with('\'')
     {
@@ -182,7 +191,6 @@ pub fn parse(line: String) -> String {
     }
 
     let x: String = lexame.clone();
-    let y: String = lexame.to_lowercase();
     let mut z: String = String::new();
 
     for c in chars { 
@@ -191,12 +199,9 @@ pub fn parse(line: String) -> String {
       }
     }
 
-    if x == y && y == z  {
+    if x == z  {
       if (lexames.len() - 1) != current {
-        if 
-          lexames.clone()[current + 1].1 == "(".to_string() ||
-          lexames.clone()[current + 1].1 == "!".to_string()
-        {
+        if lexames.clone()[current + 1].1 == "(".to_string() {
           final_string.push_str(&format!("{}", lexame.yellow())); 
           continue;
         } 
