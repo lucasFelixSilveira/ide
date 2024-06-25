@@ -49,6 +49,7 @@ fn special_keywords() -> Vec<String> {
     String::from("static"),
     String::from("const"),
     String::from("goto"),
+    String::from("NULL"),
     String::from("asm"),
     String::from("#")
   ]
@@ -92,7 +93,7 @@ pub fn parse(line: String) -> String {
   }
 
   for c in ch {
-    if [ ' ', '[', ']', ',', '{', '}', ';', '(', ')', '.', ':', '!', '<', '>', '*', '/', '#', '%', '=', '&', '"', '\'' ].contains(&c) {
+    if [ ' ', '[', ']', ',', '+', '-', '{', '}', ';', '(', ')', '.', ':', '!', '<', '>', '*', '/', '#', '%', '=', '&', '"', '\'' ].contains(&c) {
       if !lexame.is_empty() {
         lexames.push((spaces, lexame.clone())); 
         lexame.clear();
@@ -199,6 +200,13 @@ pub fn parse(line: String) -> String {
       }
     }
 
+    let chrs: &[u8] = lexame.as_bytes();
+    let first: u8 = chrs[0];
+    if first >= b'\x41' && first <= b'\x5a' {
+      final_string.push_str(&format!("{}", lexame.green())); 
+      continue 
+    }
+
     if x == z  {
       if (lexames.len() - 1) != current {
         if lexames.clone()[current + 1].1 == "(".to_string() {
@@ -208,13 +216,6 @@ pub fn parse(line: String) -> String {
       }
 
       final_string.push_str(&format!("{}", lexame.cyan())); 
-      continue 
-    }
-
-    let chrs: &[u8] = lexame.as_bytes();
-    let first: u8 = chrs[0];
-    if first >= b'\x41' && first <= b'\x5a' {
-      final_string.push_str(&format!("{}", lexame.green())); 
       continue 
     }
 

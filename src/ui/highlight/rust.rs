@@ -100,7 +100,7 @@ pub fn parse(line: String) -> String {
   }
 
   for c in ch {
-    if [ ' ', '[', ']', ',', '{', '}', ';', '(', ')', '.', ':', '!', '<', '>', '*', '/', '#', '%', '=', '&', '"', '\'' ].contains(&c) {
+    if [ ' ', '[', ']', ',', '+', '-', '{', '}', ';', '(', ')', '.', ':', '!', '<', '>', '*', '/', '#', '%', '=', '&', '"', '\'' ].contains(&c) {
       if !lexame.is_empty() {
         lexames.push((spaces, lexame.clone())); 
         lexame.clear();
