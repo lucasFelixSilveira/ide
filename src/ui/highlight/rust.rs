@@ -127,7 +127,10 @@ pub fn parse(line: String) -> String {
       continue;
     } 
 
-    if lexame.starts_with('"') && lexame.ends_with('"') {
+    if 
+      lexame.starts_with('"') && lexame.ends_with('"') ||
+      lexame.starts_with('\'') && lexame.ends_with('\'')
+    {
       final_string.push_str(&format!("{}", lexame.bright_yellow().bold()));
       string_mode = !string_mode;
       continue;
@@ -203,7 +206,7 @@ pub fn parse(line: String) -> String {
 
     let chrs: &[u8] = lexame.as_bytes();
     let first: u8 = chrs[0];
-    if first >= 0x41 && first <= 0x5a {
+    if first >= b'\x41' && first <= b'\x5a' {
       final_string.push_str(&format!("{}", lexame.green())); 
       continue 
     }
