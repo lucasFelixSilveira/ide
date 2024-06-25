@@ -30,7 +30,7 @@ pub fn assemble(editor: &mut Editor) {
   let help: String = if editor.mode == Mode::Insert {
     String::from("(Escape - Movement mode) (M-S - Save file)")
   } else if editor.mode == Mode::Movement {
-    String::from("(I - Insert mode) (L - Leave file) (M-S - Save file)")
+    String::from("(I - Insert mode) (L - Leave file) (M-S - Save file) (C or Z - Scroll)")
   } else { String::new() };
 
   let spaces_to_help: String = " ".repeat((width as usize) - header_start.len());

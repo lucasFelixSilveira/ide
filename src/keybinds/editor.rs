@@ -31,7 +31,7 @@ pub fn valid(editor: &mut Editor, press: KeyEvents) {
         _ => {}
       }
     }
-    KeyModifiers::ALT => {
+    KeyModifiers::ALT | KeyModifiers::HYPER => {
       let lines: Vec<&str> = editor.content.lines().collect();
       match press.code {
         KeyCode::Down if editor.cursor.1 < editor.page_down + 1 && editor.page_down < lines.len() - 1 => {
@@ -62,10 +62,32 @@ pub fn valid(editor: &mut Editor, press: KeyEvents) {
       }
     }
     _ => {
+      let lines: Vec<&str> = editor.content.lines().collect();
       match press.code {
         KeyCode::Char('l') | KeyCode::Char('L') if editor.mode == Mode::Movement => editor.interface = Interface::Files,
         KeyCode::Esc if editor.mode == Mode::Insert => editor.mode = Mode::Movement,
         
+        KeyCode::Char('z') | KeyCode::Char('Z') if editor.cursor.1 < editor.page_down + 1 && editor.mode == Mode::Movement && editor.page_down < lines.len() - 1 => {
+          editor.page_down += 1;
+          editor.cursor.1 = editor.page_down;
+        }
+
+        KeyCode::Char('c') | KeyCode::Char('c') if editor.page_down != 0  => {
+          editor.page_down -= 1;
+          if editor.cursor.1 - editor.page_down > terminal::get_size().1 as usize - 4 {
+            editor.cursor.1 -= 1;
+          }
+        }
+        
+        KeyCode::Char('z') | KeyCode::Char('Z') if editor.page_down < lines.len() - 1 => editor.page_down += 1,
+        
+        KeyCode::Up if editor.page_down != 0  => {
+          editor.page_down -= 1;
+          if editor.cursor.1 - editor.page_down > terminal::get_size().1 as usize - 4 {
+            editor.cursor.1 -= 1;
+          }
+        }
+
         KeyCode::Char('w') | KeyCode::Char('W') if editor.mode == Mode::Movement && (editor.cursor.1 - editor.page_down) != 0 => {
           let lines: Vec<&str> = editor.content.lines().collect();
           editor.cursor.1 -= 1;
