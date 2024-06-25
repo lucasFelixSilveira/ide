@@ -50,7 +50,7 @@ cargo build --release # Compile the repository
 
 ## Example of use in the VScode terminal
 
-<img src="https://imgur.com/npX5xyU.png" width="40%">
+<img src="https://imgur.com/npX5xyU.png" width="80%">
 </div>
 
 ### This is one of my first public projects done in Rust. There will certainly be future changes.
