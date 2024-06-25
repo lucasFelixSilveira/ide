@@ -19,9 +19,9 @@ use colored::*;
 pub fn valid(editor: &mut Editor, press: KeyEvents) {
   let options: Vec<FOption> = FOption::properties(editor);
   match press.code {
-    KeyCode::Down  | KeyCode::Char('s') if editor.prop != options.len() - 1 => editor.prop += 1,
-    KeyCode::Up    | KeyCode::Char('w') if editor.prop != 0 => editor.prop -= 1,
-    KeyCode::Enter | KeyCode::Char('e') => {
+    KeyCode::Down  | KeyCode::Char('s') | KeyCode::Char('S') if editor.prop != options.len() - 1 => editor.prop += 1,
+    KeyCode::Up    | KeyCode::Char('w') | KeyCode::Char('W') if editor.prop != 0 => editor.prop -= 1,
+    KeyCode::Enter | KeyCode::Char('e') | KeyCode::Char('E') => {
       let selected: FOption = options[editor.prop].clone();
       match selected.fun {
         FEOption::Delete if editor.files.len() > 0 && editor.files[editor.file].is_folder => {

@@ -18,7 +18,7 @@ pub fn valid(editor: &mut Editor, press: KeyEvents) {
   match press.modifiers {
     KeyModifiers::CONTROL => {
       match press.code {
-        KeyCode::Char('s') => {
+        KeyCode::Char('s') | KeyCode::Char('S') => {
           let file_path: PathBuf = editor.files[editor.file].path.clone();
           std::fs::write(file_path, editor.content.clone()).unwrap();
           clear();
@@ -46,7 +46,7 @@ pub fn valid(editor: &mut Editor, press: KeyEvents) {
           }
         }
 
-        KeyCode::Char('s') => {
+        KeyCode::Char('s') | KeyCode::Char('S') => {
           let file_path: PathBuf = editor.files[editor.file].path.clone();
           std::fs::write(file_path, editor.content.clone()).unwrap();
           clear();
@@ -63,10 +63,10 @@ pub fn valid(editor: &mut Editor, press: KeyEvents) {
     }
     _ => {
       match press.code {
-        KeyCode::Char('l') if editor.mode == Mode::Movement => editor.interface = Interface::Files,
+        KeyCode::Char('l') | KeyCode::Char('L') if editor.mode == Mode::Movement => editor.interface = Interface::Files,
         KeyCode::Esc if editor.mode == Mode::Insert => editor.mode = Mode::Movement,
         
-        KeyCode::Char('w') if editor.mode == Mode::Movement && (editor.cursor.1 - editor.page_down) != 0 => {
+        KeyCode::Char('w') | KeyCode::Char('W') if editor.mode == Mode::Movement && (editor.cursor.1 - editor.page_down) != 0 => {
           let lines: Vec<&str> = editor.content.lines().collect();
           editor.cursor.1 -= 1;
           let line: String = lines[editor.cursor.1].to_string();
@@ -84,7 +84,7 @@ pub fn valid(editor: &mut Editor, press: KeyEvents) {
           }
         }
         
-        KeyCode::Char('s') if editor.mode == Mode::Movement && (editor.cursor.1 - editor.page_down) < terminal::get_size().1 as usize - 4 => {
+        KeyCode::Char('s') | KeyCode::Char('S') if editor.mode == Mode::Movement && (editor.cursor.1 - editor.page_down) < terminal::get_size().1 as usize - 4 => {
           let lines: Vec<&str> = editor.content.lines().collect();
           if lines.len() > 0 && (lines.len() - 1) > editor.cursor.1 {
             editor.cursor.1 += 1;
@@ -106,7 +106,7 @@ pub fn valid(editor: &mut Editor, press: KeyEvents) {
           }
         }
 
-        KeyCode::Char('a') if editor.mode == Mode::Movement => {
+        KeyCode::Char('a') | KeyCode::Char('A') if editor.mode == Mode::Movement => {
           if editor.cursor.0 == 0 {
             if editor.cursor.1 == 0 {}
             else {
@@ -136,7 +136,7 @@ pub fn valid(editor: &mut Editor, press: KeyEvents) {
           }
         }
         
-        KeyCode::Char('d') if editor.mode == Mode::Movement && editor.content.len() > 0 => {
+        KeyCode::Char('d') | KeyCode::Char('D') if editor.mode == Mode::Movement && editor.content.len() > 0 => {
           let lines: Vec<&str> = editor.content.lines().collect();
           let line: String = lines[editor.cursor.1].to_string();
           if line.len() > editor.cursor.0 {
@@ -158,7 +158,7 @@ pub fn valid(editor: &mut Editor, press: KeyEvents) {
           }
         }
 
-        KeyCode::Char('i') if editor.mode == Mode::Movement => editor.mode = Mode::Insert,
+        KeyCode::Char('i') | KeyCode::Char('I') if editor.mode == Mode::Movement => editor.mode = Mode::Insert,
 
         KeyCode::Char(c) if editor.mode == Mode::Insert => {
 

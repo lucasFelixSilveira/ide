@@ -28,7 +28,7 @@ pub fn valid(editor: &mut Editor, press: KeyEvents) {
   match editor.mode {
     Mode::Listen => {
       match press.modifiers {
-        KeyModifiers::ALT if press.code == KeyCode::Char('x') => {
+        KeyModifiers::ALT if press.code == KeyCode::Char('x') || press.code == KeyCode::Char('X') => {
           editor.mode = Mode::Movement;
           editor.listen = (String::new(), LMemory::Unknown, String::new());
           clear();
@@ -54,9 +54,9 @@ pub fn valid(editor: &mut Editor, press: KeyEvents) {
       }
     }
     _ => match press.code {
-      KeyCode::Down  | KeyCode::Char('s') if editor.file != editor.files.len() - 1 => editor.file += 1,
-      KeyCode::Up    | KeyCode::Char('w') if editor.file != 0 => editor.file -= 1,
-      KeyCode::Enter | KeyCode::Char(' ') | KeyCode::Char('e') => {
+      KeyCode::Down  | KeyCode::Char('s') | KeyCode::Char('S') if editor.file != editor.files.len() - 1 => editor.file += 1,
+      KeyCode::Up    | KeyCode::Char('w') | KeyCode::Char('W') if editor.file != 0 => editor.file -= 1,
+      KeyCode::Enter | KeyCode::Char(' ') | KeyCode::Char('e') | KeyCode::Char('E') => {
         let file: File = editor.files[editor.file].clone();
         match file.is_folder {
           false => {
@@ -73,19 +73,19 @@ pub fn valid(editor: &mut Editor, press: KeyEvents) {
           }
         }
       }
-      KeyCode::Backspace | KeyCode::Char('q') => {
+      KeyCode::Backspace | KeyCode::Char('q') | KeyCode::Char('Q') => {
         clear();
         std::env::set_current_dir(
           format!("{}", std::env::current_dir().unwrap().display()).rsplit_once(std::path::MAIN_SEPARATOR).unwrap().0  
         ).unwrap();
         editor.file = 0;
       }
-      KeyCode::Char('x') => {
+      KeyCode::Char('x') | KeyCode::Char('X') => {
         clear();      
         println!("{}", "Process killed.".red());
         editor.quit = true
       }
-      KeyCode::Char('f') => {
+      KeyCode::Char('f') | KeyCode::Char('F') => {
         clear();     
         editor.interface = Interface::Properties; 
         editor.prop = 0;
