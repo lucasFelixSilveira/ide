@@ -1,3 +1,6 @@
+use crate::ui;
+use ui::highlight;
+
 use crate::structs;
 use crossterm::cursor::MoveTo;
 use crossterm::execute;
@@ -13,7 +16,7 @@ use colored::*;
 
 pub fn assemble(editor: &mut Editor) {
   let file: File = editor.files[editor.file].clone();
-  let name: String = file.name;
+  let name: String = file.clone().name;
   
   let (width, height) = get_size();
 
@@ -50,7 +53,7 @@ pub fn assemble(editor: &mut Editor) {
   
   i = 0;
   while i < (height-3) as usize && i < lines.len() {
-    code.push_str(&format!("{}\n", lines[i]));
+    code.push_str(&format!("{}\n", highlight::language(lines[i].to_string(), file.name.clone()  )));
     i += 1;
   }
 

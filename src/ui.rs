@@ -2,6 +2,8 @@ mod files;
 mod editor; 
 mod properties; 
 
+pub mod highlight;
+
 use crate::structs;
 use structs::Editor;
 use structs::Interface;
