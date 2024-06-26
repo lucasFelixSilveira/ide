@@ -47,7 +47,8 @@ fn std_types() -> Vec<String> {
     String::from("str"),
     String::from("char"),
     String::from("usize"),
-    String::from("byte")
+    String::from("f32"),
+    String::from("f64")
   ]
 }
 
@@ -58,7 +59,8 @@ fn special_keywords() -> Vec<String> {
     String::from("const"),
     String::from("self"),
     String::from("false"),
-    String::from("true")
+    String::from("true"),
+    String::from("std")
   ]
 }
 
