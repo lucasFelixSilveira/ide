@@ -64,7 +64,6 @@ pub fn valid(editor: &mut Editor, press: KeyEvents) {
             editor.interface = Interface::Editor;
             editor.cursor = (0,0);
             editor.page_down = 0;
-            editor.selection = ((0,0),(0,0));
             clear();
           }
           true => {

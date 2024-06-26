@@ -31,8 +31,6 @@ pub fn assemble(editor: &mut Editor) {
     String::from("(Escape - Movement mode) (M-S - Save file)")
   } else if editor.mode == Mode::Movement {
     String::from("(I - Insert mode) (L - Leave file) (M-S - Save file) (C or Z - Scroll)")
-  } else if editor.mode == Mode::Selection {
-    String::from("(Arrows - Move cursor) (E - Back to insert) (O - Overwrite)")
   } else { String::new() };
 
   let spaces_to_help: String = " ".repeat((width as usize) - header_start.len());

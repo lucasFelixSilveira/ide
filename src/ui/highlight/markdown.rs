@@ -45,7 +45,7 @@ pub fn parse(line: String) -> String {
     }
   }
 
-  for (current, lex) in lexames.iter().enumerate() {
+  for lex in lexames {
 
     final_string.push_str(&format!("{}", if bg_mode { format!("{}", " ".repeat(lex.0).as_str().on_dark_yellow()) } else { " ".repeat(lex.0).to_string() }));
     let lexame: String = lex.clone().1;
