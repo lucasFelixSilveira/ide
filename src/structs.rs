@@ -14,6 +14,7 @@ pub struct Editor {
   pub content: String,
   pub mode: Mode,
   pub cursor: (usize, usize),
+  pub selection: ((usize, usize), (usize, usize)),
   pub listen: (String, LMemory, String)
 }
 
@@ -29,6 +30,7 @@ impl Editor {
       content: String::new(),
       mode: Mode::Movement,
       cursor: (0,0),
+      selection: ((0,0), (0,0)),
       listen: (String::new(), LMemory::Unknown, String::new())
     }
   }
@@ -62,7 +64,10 @@ pub enum LMemory {
 pub enum Mode {
   Movement,
   Insert,
-  Listen
+  Listen,
+  Overwrite,
+  Selection,
+  Clipboard
 }
 
 #[derive(Debug, Clone)]

@@ -63,6 +63,8 @@ pub fn valid(editor: &mut Editor, press: KeyEvents) {
             editor.content = std::fs::read_to_string(file.path).unwrap();
             editor.interface = Interface::Editor;
             editor.cursor = (0,0);
+            editor.page_down = 0;
+            editor.selection = ((0,0),(0,0));
             clear();
           }
           true => {
