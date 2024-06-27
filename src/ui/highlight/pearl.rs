@@ -3,65 +3,43 @@ use crossterm::style::Stylize;
 
 fn keywords() -> Vec<String> {
   vec![
-    String::from("fn"),
-    String::from("pub"),
-    String::from("let"),
-    String::from("loop"),
+    String::from("sub"),
+    String::from("use"),
+    String::from("my"),
+    String::from("our"),
     String::from("while"),
     String::from("for"),
-    String::from("do"),
-    String::from("impl"),
-    String::from("struct"),
-    String::from("enum"),
-    String::from("use"),
-    String::from("crate"),
-    String::from("mod"),
+    String::from("foreach"),
     String::from("else"),
     String::from("if"),
-    String::from("in"),
-    String::from("union"),
+    String::from("elsif"),
     String::from("continue"),
     String::from("break"),
-    String::from("match"), 
-    String::from("return"),
-    String::from("as")    
+    String::from("return")
   ]
 }
 
 fn std_types() -> Vec<String> {
   vec![
-    String::from("u8"),
-    String::from("u16"),
-    String::from("u32"),
-    String::from("u64"),
-    String::from("u128"),
-    String::from("i8"),
-    String::from("i16"),
-    String::from("i32"),
-    String::from("i64"),
-    String::from("i128"),
-    String::from("bool"),
-    String::from("Option"),
-    String::from("Result"),
-    String::from("Vec"),
-    String::from("String"),
-    String::from("str"),
-    String::from("char"),
-    String::from("usize"),
-    String::from("f32"),
-    String::from("f64")
+    String::from("eq"),
+    String::from("ne"),
+    String::from("not"),
+    String::from("xor"),
+    String::from("or"),
+    String::from("s"),
+    String::from("$"),
+    String::from("~")
   ]
 }
 
 fn special_keywords() -> Vec<String> {
   vec![
-    String::from("mut"),
-    String::from("static"),
-    String::from("const"),
-    String::from("self"),
+    String::from("shift"),
+    String::from("unshift"),
     String::from("false"),
     String::from("true"),
-    String::from("std")
+    String::from("std"),
+    String::from("@")
   ]
 }
 
@@ -88,6 +66,7 @@ pub fn parse(line: String) -> String {
   let operators: Vec<String> = operators();
   let std_types: Vec<String> = std_types();
   let mut string_mode: bool = false;
+  let mut double_q: bool = false;
 
   let mut final_string: String = String::new();
 
@@ -103,7 +82,7 @@ pub fn parse(line: String) -> String {
   }
 
   for c in ch {
-    if [ ' ', '[', ']', ',', '+', '-', '{', '}', ';', '(', ')', '.', ':', '!', '<', '>', '*', '/', '#', '%', '=', '&', '"', '\'' ].contains(&c) {
+    if [ ' ', '[', ']', ',', '+', '-', '@', '$', '{', '}', ';', '(', ')', '.', ':', '!', '<', '>', '*', '/', '#', '%', '=', '&', '"', '\'' ].contains(&c) {
       if !lexame.is_empty() {
         lexames.push((spaces, lexame.clone())); 
         lexame.clear();
@@ -134,10 +113,12 @@ pub fn parse(line: String) -> String {
 
     if 
       lexame.starts_with('"') && lexame.ends_with('"') ||
-      lexame.starts_with('\'') && lexame.ends_with('\'')
+      (lexame.starts_with('/') && lexame.ends_with('/') && !double_q) ||
+      (lexame.starts_with('\'') && lexame.ends_with('\'') && !double_q)
     {
-      final_string.push_str(&format!("{}", lexame.dark_yellow().bold()));
+      final_string.push_str(&format!("{}", lexame.clone().dark_yellow().bold()));
       string_mode = !string_mode;
+      double_q = if !string_mode { false } else if lexame == "\x22" { true } else { false };  
       continue;
     } 
 
